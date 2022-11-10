@@ -1,0 +1,33 @@
+{% load static  %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width-device-width, initial-scale=1.0">
+    <title>Request Tracker</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lexend">
+
+    <link rel="stylesheet" href="{% static 'requests_tracker/css/bulma-prefers-dark.css' %}">
+    <link rel="stylesheet" href="{% static 'requests_tracker/css/base.css' %}">
+
+    <script defer src="https://unpkg.com/htmx.org@1.8.2"></script>
+    <script defer src="https://unpkg.com/hyperscript.org@0.9.7"></script>
+    <script defer src="https://kit.fontawesome.com/25b9cc0c60.js" crossorigin="anonymous"></script>
+    {% block head-extras %}
+    {% endblock head-extras %}
+</head>
+<body>
+    <div class="container">
+        <section class="section is-fullheight">
+            <h1 class="title has-fg-color is-2">Request Tracker</h1>
+            <p class="subtitle">Django debugging tool</p>
+            <div id="main-content">
+                {% block content %}
+                {% endblock content %}
+            </div>
+        </section>
+    </div>
+</body>
+</html>

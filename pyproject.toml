@@ -1,0 +1,51 @@
+[tool.poetry]
+name = "requests_tracker"
+version = "0.1.0"
+description = ""
+authors = ["Benedikt Óskarsson"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+django = ">=3.2"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.10.0"
+isort = "^5.10.1"
+pytest = "^7.2.0"
+pytest-sugar = "^0.9.6"
+psycopg2 = "^2.9.5"
+mypy = "^0.982"
+pre-commit = "^2.20.0"
+django-stubs = {extras = ["compatible-mypy"], version = "^1.13.0"}
+types-psycopg2 = "^2.9.21.1"
+pytest-env = "^0.8.1"
+pytest-cov = "^4.0.0"
+ruff = "^0.0.104"
+pytest-django = "^4.5.2"
+
+
+[tool.pytest.ini_options]
+env = [
+    "DJANGO_SETTINGS_MODULE = tests.django_settings"
+]
+
+
+[tool.isort]
+profile = "black"
+
+[tool.coverage.run]
+omit = ["tests/*"]
+
+[tool.mypy]
+plugins = "mypy_django_plugin.main"
+
+
+[tool.django-stubs]
+django_settings_module = "requests_tracker.settings"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
