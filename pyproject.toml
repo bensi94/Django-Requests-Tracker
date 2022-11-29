@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
 django = ">=3.2"
+sqlparse = "^0.4.3"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -22,8 +23,9 @@ django-stubs = {extras = ["compatible-mypy"], version = "^1.13.0"}
 types-psycopg2 = "^2.9.21.1"
 pytest-env = "^0.8.1"
 pytest-cov = "^4.0.0"
-ruff = "^0.0.104"
+ruff = "^0.0.146"
 pytest-django = "^4.5.2"
+djhtml = "^1.5.2"
 
 
 [tool.pytest.ini_options]

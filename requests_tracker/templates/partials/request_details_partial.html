@@ -1,128 +1,292 @@
+{% load style_tags %}
+{% load style_tags %}
+{% load style_tags %}
 {% load i18n l10n %}
+{% load style_tags format_tags %}
 
-<div id="request-details-{{ request_id }}" class="single-request-container">
-    <div id="request-details-{{ request_id }}-inner" class="request-details" _="init add .expanded">
-        <ul>
-          {% for alias, info in sql_collector.databases.items %}
-            <li>
-              <strong>{{ alias }}</strong>
-              {{ info.time_spent|floatformat:"2" }} ms ({% blocktrans count info.num_queries as num %}{{ num }} query{% plural %}{{ num }} queries{% endblocktrans %}
-              {% if info.similar_count %}
-                {% blocktrans with count=info.similar_count trimmed %}
-                  including <abbr title="Similar queries are queries with the same SQL, but potentially different parameters.">{{ count }} similar</abbr>
-                {% endblocktrans %}
-                {% if info.duplicate_count %}
-                  {% blocktrans with dupes=info.duplicate_count trimmed %}
-                    and <abbr title="Duplicate queries are identical to each other: they execute exactly the same SQL and parameters.">{{ dupes }} duplicates</abbr>
-                  {% endblocktrans %}
-                {% endif %}
-              {% endif %})
-            </li>
-          {% endfor %}
-        </ul>
+{% include "partials/loading_indicator_partial.html" %}
+<nav class="breadcrumb has-succeeds-separator" aria-label="breadcrumbs">
+    <ul>
+        <li
+            hx-get="/__requests_tracker__/"
+            hx-target="#main-content"
+            hx-indicator="#main-loading-indicator"
+            hx-push-url="true"
+        >
+            <span>
+                <button class="button is-outlined back-button">
+                    <span class="icon is-small">
+                        <i class="fa-solid fa-angle-left"></i>
+                    </span>
+                    <span>Back</span>
+                </button>
+            </span>
+            <a>Request list</a>
+        </li>
+        <li class="is-active"><a aria-current="page">{{ request.path }}</a></li>
+    </ul>
+</nav>
 
+<div class="columns">
+    <div class="column">
+        <div class="has-text-grey-dark subtitle is-5 mt-2">Django View</div>
+        <div class="title">
+            {{ django_view|split_and_last }}
+        </div>
+        <div class="subtitle is-7 is-family-monospace">
+            {{  django_view }}
+        </div>
+    </div>
+    <div class="column has-text-right">
+        <div class="has-text-grey-dark subtitle is-5 mt-2">Path</div>
+        <div class="title">
+            {{ request.path }}
+        </div>
+    </div>
 
-        {% if sql_collector.queries %}
-          <table>
-            <colgroup>
-              <col>
-              <col>
-              <col>
-              <col>
-              <col>
-              <col>
-            </colgroup>
-            <thead>
-              <tr>
-                <th></th>
-                <th colspan="2">{% trans "Query" %}</th>
-                <th>{% trans "Timeline" %}</th>
-                <th>{% trans "Time (ms)" %}</th>
-                <th>{% trans "Action" %}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for query in sql_collector.queries %}
-                <tr class="{% if query.is_slow %} djDebugRowWarning{% endif %}" id="sqlMain_{{ forloop.counter }}">
-                  <td><span></span></td>
-                  <td>
-                    <button type="button">+</button>
-                  </td>
-                  <td>
-                    <div class="djDebugSql">{{ query.sql|safe }}</div>
-                    {% if query.similar_count %}
-                      <strong>
-                        {% blocktrans with count=query.similar_count %}{{ count }} similar queries.{% endblocktrans %}
-                      </strong>
-                    {% endif %}
-                    {% if query.duplicate_count %}
-                      <strong>
-                        {% blocktrans with dupes=query.duplicate_count %}Duplicated {{ dupes }} times.{% endblocktrans %}
-                      </strong>
-                    {% endif %}
-                  </td>
-                  <td>
-                    <svg class="djDebugLineChart{% if query.is_slow %} djDebugLineChartWarning{% endif %}{% if query.in_trans %} djDebugLineChartInTransaction{% endif %}" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 100 5" preserveAspectRatio="none" aria-label="{{ query.width_ratio }}%">
-                      <rect x="{{ query.start_offset|unlocalize }}" y="0" height="5" width="{{ query.width_ratio|unlocalize }}" fill="{{ query.trace_color }}" />
-                      {% if query.starts_trans %}
-                        <line x1="{{ query.start_offset|unlocalize }}" y1="0" x2="{{ query.start_offset|unlocalize }}" y2="5" />
-                      {% endif %}
-                      {% if query.ends_trans %}
-                        <line x1="{{ query.end_offset|unlocalize }}" y1="0" x2="{{ query.end_offset|unlocalize }}" y2="5" />
-                      {% endif %}
-                    </svg>
-                  </td>
-                  <td>
-                    {{ query.duration|floatformat:"2" }}
-                  </td>
-                  <td>
-        {#            {% if query.params %}#}
-        {#              {% if query.is_select %}#}
-        {#                <form method="post">#}
-        {#                  {{ query.form }}#}
-        {#                  <button formaction="{% url 'djdt:sql_select' %}" class="remoteCall">Sel</button>#}
-        {#                  <button formaction="{% url 'djdt:sql_explain' %}" class="remoteCall">Expl</button>#}
-        {#                  {% if query.vendor == 'mysql' %}#}
-        {#                    <button formaction="{% url 'djdt:sql_profile' %}" class="remoteCall">Prof</button>#}
-        {#                  {% endif %}#}
-        {#                </form>#}
-        {#              {% endif %}#}
-        {#            {% endif %}#}
-                  </td>
-                </tr>
-                <tr id="sqlDetails_{{ forloop.counter }}">
-                  <td colspan="2"></td>
-                  <td colspan="4">
-                    <div>
-                      <p><strong>{% trans "Connection:" %}</strong> {{ query.alias }}</p>
-                      {% if query.iso_level %}
-                        <p><strong>{% trans "Isolation level:" %}</strong> {{ query.iso_level }}</p>
-                      {% endif %}
-                      {% if query.trans_status %}
-                        <p><strong>{% trans "Transaction status:" %}</strong> {{ query.trans_status }}</p>
-                      {% endif %}
-        {#              {% if query.stacktrace %}#}
-        {#                <pre class="djdt-stack">{{ query.stacktrace }}</pre>#}
-        {#              {% endif %}#}
-        {#              {% if query.template_info %}#}
-        {#                <table>#}
-        {#                  {% for line in query.template_info.context %}#}
-        {#                    <tr>#}
-        {#                      <td>{{ line.num }}</td>#}
-        {#                      <td><code {% if line.highlight %}class="djdt-highlighted"{% endif %}>{{ line.content }}</code></td>#}
-        {#                    </tr>#}
-        {#                  {% endfor %}#}
-        {#                </table>#}
-        {#                <p><strong>{{ query.template_info.name|default:_("(unknown)") }}</strong></p>#}
-        {#              {% endif %}#}
+</div>
+<div class="is-flex is-justify-content-space-between is-align-items-center request-details-info-header">
+    <div class="title is-4">
+        <div class="tag is-medium {{ request.method|method_class}}">{{ request.method }}</div>
+        <div class="has-text-grey-dark subtitle is-5 mt-2">Method</div>
+    </div>
+    <div class="request-details-info-header__seperator"></div>
+    <div class="title is-4">
+        <div>{{ response.status_code }}</div>
+        <div class="has-text-grey-dark subtitle is-5 mt-2">Status code</div>
+    </div>
+    <div class="request-details-info-header__seperator"></div>
+    <div class="title is-4">
+        <span class="icon"><i class="fa-solid fa-clock"></i></span>
+        <span>{{ start_time|date:"H : i : s" }}.{{ start_time|date:"u"|slice:3 }}</span>
+        <div class="has-text-grey-dark subtitle is-5 mt-2">Started</div>
+    </div>
+    <div class="request-details-info-header__seperator"></div>
+    <div class="title is-4">
+        <span class="icon">
+            <i class="fa-solid fa-stopwatch"></i>
+        </span>
+        <span>{{ duration }} ms</span>
+        <div class="has-text-grey-dark subtitle is-5 mt-2">Took</div>
+    </div>
+    <div class="request-details-info-header__seperator"></div>
+    <div class="request-details-info-header__database-info">
+        {% for alias, info in sql_collector.databases.items %}
+            <div class="database-list-item is-flex is-align-items-center is-justify-content-space-between">
+                <div class="is-flex is-align-items-center">
+                    <div class="fa-stack fa-2x mr-3">
+                        <i
+                            class="fa-solid fa-circle fa-stack-2x"
+                            style="color: {% contrast_color_from_number forloop.counter0 %}"
+                        ></i>
+                        <i class="fa-solid fa-database fa-stack-1x database-list-item__database-icon"></i>
                     </div>
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% else %}
-          <p>{% trans "No SQL queries were recorded during this request." %}</p>
-        {% endif %}
+                    <div>
+                        <div class="title is-5">{{ alias }}</div>
+                        <div class="subtitle is-6">{{ info.time_spent|floatformat:"2" }} ms</div>
+                    </div>
+                </div>
+                <div class="has-text-right">
+                    <h6>
+                        <strong>{{ info.num_queries }} quer{{info.num_queries|pluralize:"y,ies" }}</strong>
+                    </h6>
+                    {% with similar_count=info.similar_count %}
+                        {% with duplicate_count=info.duplicate_count %}
+                            {% if similar_count %}
+                                <div class="tag is-warning is-extra-small">{{ similar_count }} similar</div>
+                            {% endif %}
+                            {% if duplicate_count %}
+                                <div class="tag is-danger mt-1 is-extra-small">{{ duplicate_count }} duplicate{{duplicate_count|pluralize }}</div>
+                            {% endif %}
+                        {% endwith %}
+                    {% endwith %}
+                </div>
+            </div>
+        {% endfor %}
     </div>
 </div>
+
+{% if sql_collector.queries %}
+    <div class="mt-6">
+        <table class="table is-fullwidth database-query-table">
+            <thead>
+                <tr>
+                    <th>QUERY</th>
+                    <th>TIMELINE</th>
+                    <th>TIME (ms)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for query_info in sql_collector.queries %}
+                    <tr>
+                        <td>
+                            <div class="my-2">
+                                <article class="message">
+                                    <div
+                                        class="message-body database-query-body database-query-body__collapsed  is-flex is-justify-content-space-between"
+                                        style="border-color: {% contrast_color_from_number sql_collector.databases|dict_key_index:query_info.alias %}"
+                                        _="
+                                            on click
+                                            toggle between .database-query-body__collapsed and .database-query-body__expanded
+                                            end
+                                            on click
+                                            toggle .database-query-body__sql__hidden on .database-query-body__sql__{{ forloop.counter0 }}
+                                            end
+                                            on click
+                                            wait 200ms then toggle .database-query-body__sql__collapsed-section-show on #database-query-body__sql__{{ forloop.counter0 }}__collapsed
+                                            end"
+                                    >
+                                        <div>
+                                            <div
+                                                id="database-query-body__sql__{{ forloop.counter0 }}__collapsed"
+                                                class="database-query-body__sql
+                                                    database-query-body__sql__{{ forloop.counter0 }}
+                                                    database-query-body__sql__collapsed-section
+                                                    database-query-body__sql__collapsed-section-show
+                                                "
+                                            >
+                                                {% autoescape off %}
+                                                    {% simplify_sql query_info.raw_sql|safe  %}
+                                                {% endautoescape %}
+                                            </div>
+                                            <div
+                                                class="database-query-body__sql
+                                                    database-query-body__sql__{{ forloop.counter0 }}
+                                                    database-query-body__sql__hidden
+                                                    database-query-body__sql__expand-section"
+                                            >
+                                                {% autoescape off %}
+                                                    {% format_sql query_info.raw_sql|safe %}
+                                                {% endautoescape %}
+                                            </div>
+                                            {% with similar_count=query_info.similar_count %}
+                                                {% with duplicate_count=query_info.duplicate_count %}
+                                                    {% if similar_count %}
+                                                        <div class="tag is-warning is-extra-small mt-3">{{ similar_count }} similar</div>
+                                                    {% endif %}
+                                                    {% if duplicate_count %}
+                                                        <div class="tag is-danger mt-3 is-extra-small">{{ duplicate_count }} duplicate{{duplicate_count|pluralize }}</div>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endwith %}
+                                        </div>
+                                        <div>
+                                            <i class="fa-solid fa-angle-down has-fg-color ml-4 is-clickable"></i>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="my-2 database-query-timeline-bar">
+                                <div
+                                    class="database-query-timeline-bar__value-bar"
+                                    style="{% timeline_bar_styles sql_collector.queries sql_collector.sql_time forloop.counter0 %}">
+                                </div>
+                            </div>
+                            {% if query_info.is_slow %}
+                                <span class="icon-text mt-2">
+                                    <span class="icon mr-2">
+                                        <i class="fa-solid fa-2x fa-triangle-exclamation has-text-warning"></i>
+                                    </span>
+                                    <span>Slow query</span>
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="my-2">
+                                {{ query_info.duration|floatformat:"2" }}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div>TODO</div>
+{% endif %}
+{#              {% for query in sql_collector.queries %}#}
+{#                <tr class="{% if query.is_slow %} djDebugRowWarning{% endif %}" id="sqlMain_{{ forloop.counter }}">#}
+{#                  <td><span></span></td>#}
+{#                  <td>#}
+{#                    <button type="button">+</button>#}
+{#                  </td>#}
+{#                  <td>#}
+{#                    <div class="djDebugSql">{{ query.sql|safe }}</div>#}
+{#                    {% if query.similar_count %}#}
+{#                      <strong>#}
+{#                        {% blocktrans with count=query.similar_count %}{{ count }} similar queries.{% endblocktrans %}#}
+{#                      </strong>#}
+{#                    {% endif %}#}
+{#                    {% if query.duplicate_count %}#}
+{#                      <strong>#}
+{#                        {% blocktrans with dupes=query.duplicate_count %}Duplicated {{ dupes }} times.{% endblocktrans %}#}
+{#                      </strong>#}
+{#                    {% endif %}#}
+{#                  </td>#}
+{#                  <td>#}
+{#                    <svg class="djDebugLineChart{% if query.is_slow %} djDebugLineChartWarning{% endif %}{% if query.in_trans %} djDebugLineChartInTransaction{% endif %}" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 100 5" preserveAspectRatio="none" aria-label="{{ query.width_ratio }}%">#}
+{#                      <rect x="{{ query.start_offset|unlocalize }}" y="0" height="5" width="{{ query.width_ratio|unlocalize }}" fill="{{ query.trace_color }}" />#}
+{#                      {% if query.starts_trans %}#}
+{#                        <line x1="{{ query.start_offset|unlocalize }}" y1="0" x2="{{ query.start_offset|unlocalize }}" y2="5" />#}
+{#                      {% endif %}#}
+{#                      {% if query.ends_trans %}#}
+{#                        <line x1="{{ query.end_offset|unlocalize }}" y1="0" x2="{{ query.end_offset|unlocalize }}" y2="5" />#}
+{#                      {% endif %}#}
+{#                    </svg>#}
+{#                  </td>#}
+{#                  <td>#}
+{#                    {{ query.duration|floatformat:"2" }}#}
+{#                  </td>#}
+{#                  <td>#}
+{#            {% if query.params %}#}
+{#              {% if query.is_select %}#}
+{#                <form method="post">#}
+{#                  {{ query.form }}#}
+{#                  <button formaction="{% url 'djdt:sql_select' %}" class="remoteCall">Sel</button>#}
+{#                  <button formaction="{% url 'djdt:sql_explain' %}" class="remoteCall">Expl</button>#}
+{#                  {% if query.vendor == 'mysql' %}#}
+{#                    <button formaction="{% url 'djdt:sql_profile' %}" class="remoteCall">Prof</button>#}
+{#                  {% endif %}#}
+{#                </form>#}
+{#              {% endif %}#}
+{#            {% endif %}#}
+{#                  </td>#}
+{#                </tr>#}
+{#                <tr id="sqlDetails_{{ forloop.counter }}">#}
+{#                  <td colspan="2"></td>#}
+{#                  <td colspan="4">#}
+{#                    <div>#}
+{#                      <p><strong>{% trans "Connection:" %}</strong> {{ query.alias }}</p>#}
+{#                      {% if query.iso_level %}#}
+{#                        <p><strong>{% trans "Isolation level:" %}</strong> {{ query.iso_level }}</p>#}
+{#                      {% endif %}#}
+{#                      {% if query.trans_status %}#}
+{#                        <p><strong>{% trans "Transaction status:" %}</strong> {{ query.trans_status }}</p>#}
+{#                      {% endif %}#}
+{#              {% if query.stacktrace %}#}
+{#                <pre class="djdt-stack">{{ query.stacktrace }}</pre>#}
+{#              {% endif %}#}
+{#              {% if query.template_info %}#}
+{#                <table>#}
+{#                  {% for line in query.template_info.context %}#}
+{#                    <tr>#}
+{#                      <td>{{ line.num }}</td>#}
+{#                      <td><code {% if line.highlight %}class="djdt-highlighted"{% endif %}>{{ line.content }}</code></td>#}
+{#                    </tr>#}
+{#                  {% endfor %}#}
+{#                </table>#}
+{#                <p><strong>{{ query.template_info.name|default:_("(unknown)") }}</strong></p>#}
+{#              {% endif %}#}
+{#                    </div>#}
+{#                  </td>#}
+{#                </tr>#}
+{#              {% endfor %}#}
+{#            </tbody>#}
+{#          </table>#}
+{#        {% else %}#}
+{#          <p>{% trans "No SQL queries were recorded during this request." %}</p>#}
+{#        {% endif %}#}
+{#    </div>#}
+{#</div>#}

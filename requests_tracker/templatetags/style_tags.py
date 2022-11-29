@@ -1,5 +1,9 @@
+import colorsys
+
 from django import template
 from django.template.defaultfilters import stringfilter
+
+from requests_tracker.sql.dataclasses import SQLQueryInfo
 
 register = template.Library()
 
@@ -21,3 +25,40 @@ def method_bulma_color_class(method: str) -> str:
             return "is-danger"
         case _:
             return ""
+
+
+@register.simple_tag
+def contrast_color_from_number(color_number: int) -> str:
+    starting_color = 0.6  # Blue ish color
+    shift = 0.1 * (color_number // 4)  # Shift by 10% for every 4 numbers
+    color_addition = 0.25 * color_number  # Cycle the color scheme 25% at a time
+
+    hue = (starting_color + color_addition + shift) % 1  # Only want decimal part
+    saturation = 0.65
+    value = 0.7
+
+    hsv_tuple = (hue, saturation, value)
+
+    return "#" + "".join(
+        f"{int(color * 255):02x}" for color in colorsys.hsv_to_rgb(*hsv_tuple)
+    )
+
+
+@register.simple_tag
+def timeline_bar_styles(
+    queries: list[SQLQueryInfo],
+    total_sql_time: float,
+    current_index: int,
+) -> str:
+    current_query = queries[current_index]
+    percentage = (current_query.duration / total_sql_time) * 100
+    offset_percentage = (
+        sum(query.duration for query in queries[:current_index]) / total_sql_time * 100
+    )
+
+    color = contrast_color_from_number(current_index + 100)
+    return (
+        f"width: {percentage:.3f}%; "
+        f"margin-left: {offset_percentage:.3f}%; "
+        f"background-color: {color};"
+    )

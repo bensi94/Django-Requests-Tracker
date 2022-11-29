@@ -1,0 +1,69 @@
+@import "variabels"
+
+.back-button
+  font-size: 0.7rem !important
+  margin-right: 10px
+
+
+.database-list-item
+  margin-bottom: 20px
+  &__database-icon
+    color: #eee
+  &:last-child
+    margin-bottom: 0
+
+
+.request-details-info-header
+  &__seperator
+    border-right: solid 0.5px #363636
+    align-self: stretch
+  &__database-info
+    min-width: 400px
+
+.database-query-table
+  border-radius: 5px
+
+
+.database-query-body
+  word-break: break-all
+  .fa-angle-down
+    transition: transform 300ms ease-in-out
+    transform-origin: center
+
+  &__collapsed
+    .fa-angle-down
+      transform: rotate(0deg)
+
+
+  &__expanded
+    .fa-angle-down
+      transform: rotate(180deg)
+
+  &__sql
+    max-height: 2000px // Just needs to be something big
+    overflow: hidden
+    &__collapsed-section.database-query-body__sql__hidden
+      display: none
+    &__hidden
+      max-height: 0
+    &__expand-section
+      transition: max-height 300ms ease-in-out -50ms
+    &__collapsed-section
+      display: none
+      transition: max-height 300ms ease-in-out -50ms
+      &-show
+        display: block
+    >strong
+      color: $fg-color !important
+      font-size: 1.1rem
+
+
+.database-query-timeline-bar
+  height: 20px
+  background-color: #242424
+  width: 300px
+  border-radius: 10px
+  overflow: hidden
+  &__value-bar
+    height: 20px
+    box-sizing: border-box

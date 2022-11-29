@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.urls import resolve
 
 from requests_tracker.base_collector import Collector
@@ -15,6 +15,7 @@ class MainRequestCollector:
     django_view: str
     start_time: datetime
     end_time: datetime | None
+    response: HttpResponse | None = None
 
     sql_collector: SQLCollector
 
@@ -57,8 +58,24 @@ class MainRequestCollector:
             "start_time": self.start_time,
             "end_time": self.end_time,
             "duration": self.duration,
+            "response": self.response,
             **self.get_collectors(),
         }
+
+    def matches_search_filter(self, search: str) -> bool:
+        search = search.lower()
+        return (
+            search in self.request.path.lower()
+            or search in self.django_view.lower()
+            or next(
+                (
+                    True
+                    for collector in self.get_collectors().values()
+                    if collector.matches_search_filter(search)
+                ),
+                False,
+            )
+        )
 
     # def generate_stats(self):
     #     colors = contrasting_color_generator()

@@ -9,15 +9,33 @@ def is_htmx_request(request: RequestWithCollectors) -> bool:
     return request.headers.get("HX-Request", "").lower() == "true"
 
 
+def is_htmx_search_query(request: RequestWithCollectors) -> bool:
+    return request.headers.get("HX-Target") == "request-list-search-results"
+
+
 def index(request: RequestWithCollectors) -> TemplateResponse:
+    search_filter = request.GET.get("requests_filter", "")
+
     requests = {
         request_id: request_collector.get_as_context()
         for request_id, request_collector in reversed(
-            request.request_collectors.items()
+            list(request.request_collectors.items())
         )
+        if not search_filter or request_collector.matches_search_filter(search_filter)
     }
 
-    return TemplateResponse(request, "index.html", context={"requests": requests})
+    template = "index.html"
+
+    if is_htmx_search_query(request):
+        template = "partials/request_list_only_partial.html"
+    elif is_htmx_request(request):
+        template = "partials/request_list_partial.html"
+
+    return TemplateResponse(
+        request,
+        template,
+        context={"requests": requests, "current_search": search_filter},
+    )
 
 
 def request_details(

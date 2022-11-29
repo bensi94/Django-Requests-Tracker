@@ -1,0 +1,78 @@
+.back-button {
+  font-size: 0.7rem !important;
+  margin-right: 10px;
+}
+
+.database-list-item {
+  margin-bottom: 20px;
+}
+.database-list-item__database-icon {
+  color: #eee;
+}
+.database-list-item:last-child {
+  margin-bottom: 0;
+}
+
+.request-details-info-header__seperator {
+  border-right: solid 0.5px #363636;
+  align-self: stretch;
+}
+.request-details-info-header__database-info {
+  min-width: 400px;
+}
+
+.database-query-table {
+  border-radius: 5px;
+}
+
+.database-query-body {
+  word-break: break-all;
+}
+.database-query-body .fa-angle-down {
+  transition: transform 300ms ease-in-out;
+  transform-origin: center;
+}
+.database-query-body__collapsed .fa-angle-down {
+  transform: rotate(0deg);
+}
+.database-query-body__expanded .fa-angle-down {
+  transform: rotate(180deg);
+}
+.database-query-body__sql {
+  max-height: 2000px;
+  overflow: hidden;
+}
+.database-query-body__sql__collapsed-section.database-query-body__sql__hidden {
+  display: none;
+}
+.database-query-body__sql__hidden {
+  max-height: 0;
+}
+.database-query-body__sql__expand-section {
+  transition: max-height 300ms ease-in-out -50ms;
+}
+.database-query-body__sql__collapsed-section {
+  display: none;
+  transition: max-height 300ms ease-in-out -50ms;
+}
+.database-query-body__sql__collapsed-section-show {
+  display: block;
+}
+.database-query-body__sql > strong {
+  color: #c9d1d9 !important;
+  font-size: 1.1rem;
+}
+
+.database-query-timeline-bar {
+  height: 20px;
+  background-color: #242424;
+  width: 300px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.database-query-timeline-bar__value-bar {
+  height: 20px;
+  box-sizing: border-box;
+}
+
+/*# sourceMappingURL=request-details.css.map */

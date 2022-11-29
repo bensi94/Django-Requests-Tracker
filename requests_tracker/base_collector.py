@@ -7,3 +7,7 @@ class Collector(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def generate_statistics(self) -> None:
         raise NotImplementedError()
+
+    @abc.abstractmethod
+    def matches_search_filter(self, search: str) -> bool:
+        raise NotImplementedError()

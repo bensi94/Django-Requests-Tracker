@@ -119,3 +119,10 @@ class SQLCollector(Collector):
     @property
     def total_duplicate_queries(self) -> int:
         return sum(database.duplicate_count for database in self.databases.values())
+
+    def matches_search_filter(self, search: str) -> bool:
+        search = search.lower()
+        return next(
+            (True for query in self.queries if search in query.raw_sql.lower()),
+            False,
+        )

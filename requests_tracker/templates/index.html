@@ -1,9 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block head-extras %}
-    <link rel="stylesheet" href="{% static 'requests_tracker/css/index.css' %}">
-    <link rel="stylesheet" href="{% static 'requests_tracker/css/single-request.css' %}">
-{% endblock head-extras %}
 
 {% block content %}
     {% include "partials/request_list_partial.html" %}
