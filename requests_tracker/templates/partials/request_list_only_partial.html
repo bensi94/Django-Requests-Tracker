@@ -62,3 +62,33 @@
         </div>
     {% endfor %}
 </div>
+<i
+    class="
+        fas
+        fa-lg
+        {% if requests_direction == "ascending" %}
+            fa-sort-up
+        {% elif requests_direction == "descending" %}
+            fa-sort-down
+        {% else %}
+            fa-sort
+        {% endif %}
+    "
+    id="requests-sort-direction-icon"
+    hx-get="/__requests_tracker__/"
+    hx-target="#request-list-search-results"
+    hx-vals='
+    {
+        "requests_direction":
+        {% if requests_direction == "ascending" %}
+            "descending"
+        {% else %}
+            "ascending"
+        {% endif %}
+    }
+    '
+    hx-include="[name='requests_filter'], [name='requests_sorter']"
+    hx-push-url="true"
+    hx-swap-oob="true"
+>
+</i>

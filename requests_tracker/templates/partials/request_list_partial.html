@@ -1,15 +1,19 @@
 <div class="columns">
     <div class="field column is-three-quarters">
+        <div class="mb-1">
+            <label for="requests_filter">Search</label>
+        </div>
         <p class="control has-icons-left">
             <input
                 class="input"
                 type="text"
                 name="requests_filter"
-                value="{{ current_search }}"
-                placeholder="Search for request..."
+                value="{{ requests_filter }}"
+                placeholder="Search for requests, views or sql..."
                 hx-get="/__requests_tracker__/"
                 hx-trigger="keyup changed delay:50ms, search"
                 hx-target="#request-list-search-results"
+                hx-include="[name='requests_sorter']"
                 hx-push-url="true"
             />
             <span class="icon is-small is-left">
@@ -18,16 +22,62 @@
         </p>
     </div>
     <div class="column">
-        <div class="control has-icons-left">
-            <div class="select is-fullwidth">
-                <select required class="is-fullwidth sort-by-select">
-                    <option selected value="">Sort by...</option>
-                    <option>With options</option>
-                </select>
+        <div class="control">
+            <div class="mb-1">
+                <label for="requests_sorter">Order by:</label>
             </div>
-            <span class="icon is-small is-left">
-                <i class="fas fa-sort"></i>
-            </span>
+            <div class="is-flex">
+                <div class="select is-fullwidth">
+                    <select
+                        required
+                        class="is-fullwidth sort-by-select"
+                        name="requests_sorter"
+                        hx-get="/__requests_tracker__/"
+                        hx-target="#request-list-search-results"
+                        hx-include="[name='requests_filter']"
+                        hx-push-url="true"
+                    >
+                        <option {% if requests_sorter == "time" %}selected{%  endif %} value="time">Time</option>
+                        <option {% if requests_sorter == "duration" %}selected{%  endif %} value="duration">Duration</option>
+                        <option {% if requests_sorter == "name" %}selected{%  endif %} value="name">Name</option>
+                        <option {% if requests_sorter == "view" %}selected{%  endif %} value="view">Django View</option>
+                        <option {% if requests_sorter == "query_count" %}selected{%  endif %} value="query_count">Query count</option>
+                        <option {% if requests_sorter == "duplicate_query_count" %}selected{%  endif %} value="duplicate_query_count">Duplicate query count</option>
+                        <option {% if requests_sorter == "similar_query_count" %}selected{%  endif %} value="similar_query_count">Duplicate query count</option>
+                    </select>
+                </div>
+                <div class="icon ml-2 sort-direction-icon has-fg-color is-clickable">
+                    <i
+                        class="
+                            fas
+                            fa-lg
+                            {% if requests_direction == "ascending" %}
+                                fa-sort-up
+                            {% elif requests_direction == "descending" %}
+                                fa-sort-down
+                            {% else %}
+                                fa-sort
+                            {% endif %}
+                        "
+                        id="requests-sort-direction-icon"
+                        hx-get="/__requests_tracker__/"
+                        hx-target="#request-list-search-results"
+                        hx-vals='
+                        {
+                            "requests_direction":
+                            {% if requests_direction == "ascending" %}
+                                "descending"
+                            {% else %}
+                                "ascending"
+                            {% endif %}
+                        }
+                        '
+                        hx-include="[name='requests_filter'], [name='requests_sorter']"
+                        hx-push-url="true"
+                    >
+                    </i>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -1,23 +1,23 @@
 .has-fg-color {
-    color: #c9d1d9 !important;
+  color: #c9d1d9 !important;
 }
 
 body {
-    font-family: "Lexend", sans-serif;
+  font-family: "Lexend", sans-serif;
 }
 
 #main-content {
-    border-top: solid 0.5px #363636;
-    padding-top: 20px;
+  border-top: solid 0.5px #363636;
+  padding-top: 20px;
 }
 
 .page-container {
-    margin-top: 20px;
-    margin-bottom: 50px;
+  margin-top: 20px;
+  margin-bottom: 50px;
 }
 
 .tag.is-extra-small {
-    font-size: 0.6rem;
+  font-size: 0.6rem;
 }
 
 /*# sourceMappingURL=base.css.map */
