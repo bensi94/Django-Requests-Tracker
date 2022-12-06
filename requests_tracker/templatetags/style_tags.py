@@ -27,6 +27,30 @@ def method_bulma_color_class(method: str) -> str:
             return ""
 
 
+@register.filter("status_code_class")
+@stringfilter
+def status_code_bulma_color_class(status_code_str: str) -> str:
+    """Takes in HTTP status code and returns a bulma class for colorization"""
+
+    try:
+        status_code = int(status_code_str)
+    except ValueError:
+        status_code = 0
+
+    if 200 > status_code >= 100:
+        return "is-info"
+    elif 300 > status_code >= 200:
+        return "is-success"
+    elif 400 > status_code >= 300:
+        return "is-link"
+    elif 500 > status_code >= 400:
+        return "is-warning"
+    elif status_code >= 500:
+        return "is-danger"
+
+    return "is-dark"
+
+
 @register.simple_tag
 def contrast_color_from_number(color_number: int) -> str:
     starting_color = 0.6  # Blue ish color

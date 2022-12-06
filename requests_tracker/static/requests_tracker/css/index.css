@@ -5,6 +5,13 @@
 .sort-direction-icon {
   height: 40px;
 }
+.sort-direction-icon #requests-sort-direction-icon {
+  display: block !important;
+}
+
+#requests-sort-direction-icon {
+  display: none;
+}
 
 .request-list__item {
   border-width: 1px 1px 0 1px;

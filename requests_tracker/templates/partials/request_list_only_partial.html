@@ -10,12 +10,20 @@
             hx-indicator="#main-loading-indicator"
             hx-push-url="true"
         >
-            <div class="column is-flex is-half is-align-items-center">
+            <div class="column is-flex is-5 is-align-items-center">
                 <span class="tag is-medium {{ request.request.method|method_class}}">{{ request.request.method }}</span>
                 <div class="ml-5">
                     <h3 class="title is-5 has-fg-color">{{ request.request.path }}</h3>
                     <div class="subtitle is-7 is-family-monospace">
                         {{ request.django_view }}
+                    </div>
+                </div>
+            </div>
+            <div class="column is-2 has-fg-color is-flex">
+                <div>
+                    <div class="title is-6 mt-1 mb-2">Status code</div>
+                    <div class="tag {{ request.response.status_code|status_code_class }}">
+                        {{ request.response.status_code }}
                     </div>
                 </div>
             </div>
@@ -62,6 +70,8 @@
         </div>
     {% endfor %}
 </div>
+
+{# NOTE: This part is not part of the rendered template but is used for htmx oob swap#}
 <i
     class="
         fas

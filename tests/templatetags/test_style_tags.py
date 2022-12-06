@@ -33,6 +33,42 @@ def test_method_bulma_color_class(
 
 
 @pytest.mark.parametrize(
+    "status_code_str, expected_classes",
+    [
+        ("100", "is-info"),
+        ("101", "is-info"),
+        ("200", "is-success"),
+        ("201", "is-success"),
+        ("202", "is-success"),
+        ("300", "is-link"),
+        ("301", "is-link"),
+        ("302", "is-link"),
+        ("400", "is-warning"),
+        ("401", "is-warning"),
+        ("429", "is-warning"),
+        ("500", "is-danger"),
+        ("503", "is-danger"),
+        ("0", "is-dark"),
+        ("INVALID", "is-dark"),
+    ],
+)
+def test_status_code_bulma_color_class(
+    status_code_str: str,
+    expected_classes: str,
+    template_renderer: TemplateRenderer,
+) -> None:
+    template = """
+    {% load style_tags %}
+    <span class="{{ test|status_code_class }}"></span>
+    """
+
+    assert (
+        template_renderer(template, {"test": status_code_str}, strip=True)
+        == f'<span class="{expected_classes}"></span>'
+    )
+
+
+@pytest.mark.parametrize(
     "color_number, expected_color",
     [
         (0, "#3e6cb2"),
