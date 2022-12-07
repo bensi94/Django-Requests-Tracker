@@ -75,4 +75,11 @@
   box-sizing: border-box;
 }
 
+.header-table {
+  word-break: break-all;
+}
+.header-table th:first-child, .header-table td:first-child {
+  width: 30%;
+}
+
 /*# sourceMappingURL=request-details.css.map */

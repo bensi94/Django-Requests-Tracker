@@ -48,8 +48,7 @@ def requests_tracker_middleware(
             request_collectors[request_collector.request_id] = request_collector
 
             response = await get_response(request)
-            request_collector.set_end_time()
-            request_collector.response = response
+            request_collector.wrap_up_request(response)
 
             return response
 
@@ -67,8 +66,7 @@ def requests_tracker_middleware(
             request_collectors[request_collector.request_id] = request_collector
 
             response = get_response(request)
-            request_collector.set_end_time()
-            request_collector.response = response
+            request_collector.wrap_up_request(response)
 
             return response
 

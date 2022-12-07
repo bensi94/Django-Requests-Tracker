@@ -1,0 +1,5 @@
+<div class="mt-2">
+    {% include "components/header_table.html" with title="Request Headers" headers=header_collector.request_headers %}
+    {% include "components/header_table.html" with title="Response Headers" headers=header_collector.response_headers %}
+    {% include "components/header_table.html" with title="Request enviornment" headers=header_collector.environ %}
+</div>
