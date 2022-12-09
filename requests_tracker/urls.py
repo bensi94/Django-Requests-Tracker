@@ -10,4 +10,5 @@ urlpatterns = [
         views.request_details,
         name="request_details",
     ),
+    path("django-settings", views.django_settings, name="django_settings"),
 ]

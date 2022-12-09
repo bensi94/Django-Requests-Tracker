@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    {% include "components/table.html" with title="Django settings" key_value_dict=django_settings %}
+{% endblock content %}

@@ -1,7 +1,10 @@
+import os
 import re
+from pprint import pformat
 from typing import Any
 
 from django import template
+from django.utils.safestring import mark_safe
 
 from requests_tracker.sql.sql_parser import parse_sql
 
@@ -28,6 +31,15 @@ def dict_key_index(input_dict: dict[str, Any], key: str) -> int | None:
     )
 
 
+@register.filter
+def pprint_datastructure_values(value: Any) -> str:
+    return mark_safe(
+        f"<pre>{pformat(value)}</pre>"
+        if isinstance(value, (dict, list, tuple))
+        else str(value)
+    )
+
+
 @register.simple_tag
 def simplify_sql(sql: str) -> str:
     """
@@ -46,3 +58,25 @@ def format_sql(sql: str) -> str:
     Reformats SQL with align indents and bolded keywords
     """
     return parse_sql(sql, align_indent=True)
+
+
+@register.filter
+def simplify_path(path: str) -> str:
+    """
+    Takes in python full path and returns it relative to the current running
+    django project or site_packages.
+
+    e.g.
+    "/Users/my_user/Documents/django-project/venv/lib/python3.10/
+    site-packages/django/contrib/staticfiles/handlers.py"
+    =>
+    ".../site-packages/django/contrib/staticfiles/handlers.py"
+    """
+
+    if "/site-packages" in path:
+        return f"...{ path[path.index('/site-packages'): ] }"
+    elif path.startswith(os.getcwd()):
+        # This should be the directory of the django project
+        return f"...{path[len(os.getcwd()): ] }"
+
+    return path

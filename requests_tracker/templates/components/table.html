@@ -1,3 +1,4 @@
+{% load format_tags %}
 <div class="title is-4">{{ title }}</div>
 <table class="table is-fullwidth header-table">
     <thead>
@@ -7,10 +8,10 @@
         </tr>
     </thead>
     <tbody>
-        {% for key, value in headers.items %}
+        {% for key, value in key_value_dict.items %}
             <tr>
                 <td><strong>{{ key }}</strong></td>
-                <td>{{ value }}</td>
+                <td>{{ value|pprint_datastructure_values }}</td>
             </tr>
         {% endfor %}
     </tbody>

@@ -1,7 +1,9 @@
 from datetime import datetime
 from uuid import UUID
 
+from django.conf import settings
 from django.template.response import TemplateResponse
+from django.views.debug import get_default_exception_reporter_filter
 
 from requests_tracker.main_request_collector import MainRequestCollector
 from requests_tracker.middleware import RequestWithCollectors
@@ -98,3 +100,17 @@ def request_details(
     context = request.request_collectors[request_id].get_as_context()
 
     return TemplateResponse(request=request, template=template, context=context)
+
+
+get_safe_settings = get_default_exception_reporter_filter().get_safe_settings
+
+
+def django_settings(request: RequestWithCollectors) -> TemplateResponse:
+    return TemplateResponse(
+        request=request,
+        template="django_settings.html",
+        context={
+            "django_settings": dict(sorted(get_safe_settings().items())),
+            "django_settings_module": settings.SETTINGS_MODULE,
+        },
+    )

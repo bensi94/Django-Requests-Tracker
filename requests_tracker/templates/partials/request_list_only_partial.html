@@ -72,6 +72,7 @@
 </div>
 
 {# NOTE: This part is not part of the rendered template but is used for htmx oob swap#}
+<input type="hidden" name="requests_direction" value="{{ requests_direction }}">
 <i
     class="
         fas
@@ -89,12 +90,12 @@
     hx-target="#request-list-search-results"
     hx-vals='
     {
-        "requests_direction":
-        {% if requests_direction == "ascending" %}
-            "descending"
-        {% else %}
-            "ascending"
-        {% endif %}
+    "requests_direction":
+    {% if requests_direction == "ascending" %}
+        "descending"
+    {% else %}
+        "ascending"
+    {% endif %}
     }
     '
     hx-include="[name='requests_filter'], [name='requests_sorter']"

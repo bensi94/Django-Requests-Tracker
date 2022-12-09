@@ -1,5 +1,5 @@
 <div class="columns">
-    <div class="field column is-three-quarters">
+    <div class="field column is-two-thirds">
         <div class="mb-1">
             <label for="requests_filter">Search</label>
         </div>
@@ -13,7 +13,7 @@
                 hx-get="/__requests_tracker__/"
                 hx-trigger="keyup changed delay:50ms, search"
                 hx-target="#request-list-search-results"
-                hx-include="[name='requests_sorter']"
+                hx-include="[name='requests_sorter'], [name='requests_direction']"
                 hx-push-url="true"
             />
             <span class="icon is-small is-left">
@@ -34,7 +34,7 @@
                         name="requests_sorter"
                         hx-get="/__requests_tracker__/"
                         hx-target="#request-list-search-results"
-                        hx-include="[name='requests_filter']"
+                        hx-include="[name='requests_filter'], [name='requests_direction']"
                         hx-push-url="true"
                     >
                         <option {% if requests_sorter == "time" %}selected{%  endif %} value="time">Time</option>
@@ -47,6 +47,7 @@
                     </select>
                 </div>
                 <div class="icon ml-2 sort-direction-icon has-fg-color is-clickable">
+                    <input type="hidden" name="requests_direction" value="{{ requests_direction }}">
                     <i
                         class="
                             fas
@@ -64,19 +65,55 @@
                         hx-target="#request-list-search-results"
                         hx-vals='
                         {
-                            "requests_direction":
-                            {% if requests_direction == "ascending" %}
-                                "descending"
-                            {% else %}
-                                "ascending"
-                            {% endif %}
+                        "requests_direction":
+                        {% if requests_direction == "ascending" %}
+                            "descending"
+                        {% else %}
+                            "ascending"
+                        {% endif %}
                         }
                         '
-                        hx-include="[name='requests_filter'], [name='requests_sorter']"
+                        hx-include="[name='requests_filter'], [name='requests_sorter'], [name='requests_direction']"
                         hx-push-url="true"
                     >
                     </i>
+
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="column is-1 refresh-interval-control">
+        <div class="mb-1">
+            <label for="refresh_button">Refresh</label>
+        </div>
+        <div class="control has-icons-left">
+            <div
+                class="select"
+                hx-get="/__requests_tracker__/?requests_direction={{ requests_direction }}"
+                hx-trigger="
+                    every 1s [document.getElementById('refresh-interval-select').value == '1s'],
+                    every 3s [document.getElementById('refresh-interval-select').value == '3s'],
+                    every 5s [document.getElementById('refresh-interval-select').value == '5s']
+                    every 10s [document.getElementById('refresh-interval-select').value == '10s']
+                    every 30s [document.getElementById('refresh-interval-select').value == '30s']
+                    every 60s [document.getElementById('refresh-interval-select').value == '60s']
+                "
+                hx-include="[name='requests_filter'], [name='requests_sorter'], [name='requests_direction']"
+                hx-target="#request-list-search-results"
+                hx-sync="[name='requests_filter']:abort, [name='requests_sorter']:abort, [name='requests_direction']:abort"
+            >
+                <select id="refresh-interval-select">
+                    <option selected>Off</option>
+                    <option value="1s">1s</option>
+                    <option value="3s">3s</option>
+                    <option value="5s">5s</option>
+                    <option value="10s">10s</option>
+                    <option value="30s">30s</option>
+                    <option value="60s">1m</option>
+                </select>
+            </div>
+            <div class="icon is-small is-left">
+                <i class="fa-solid fa-arrows-rotate"></i>
             </div>
         </div>
     </div>

@@ -9,6 +9,7 @@ from requests_tracker import settings
 
 _local_data = Local()
 
+# each tuple is: filename, line_no, func_name, source_line, frame_locals
 StackTrace = list[tuple[str, int, str, str, dict[str, Any] | None]]
 
 

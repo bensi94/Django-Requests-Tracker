@@ -51,6 +51,29 @@
                                                 {% autoescape off %}
                                                     {% format_sql query_info.raw_sql|safe %}
                                                 {% endautoescape %}
+                                                {% if query_info.stacktrace %}
+                                                    <h4 class="title is-4 mt-6"> Stacktrace</h4>
+                                                    <table class="table is-fullwidth stacktrace-table">
+                                                        <thead>
+                                                            <tr class="is-size-7">
+                                                                <th>File</th>
+                                                                <th>Line number</th>
+                                                                <th>Function</th>
+                                                                <th>Source line</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for trace in query_info.stacktrace %}
+                                                                <tr class="is-family-monospace is-size-7">
+                                                                    <td>{{ trace.0|simplify_path }}</td>
+                                                                    <td>{{ trace.1 }}</td>
+                                                                    <td>{{ trace.2 }}</td>
+                                                                    <td>{{ trace.3 }}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                {% endif %}
                                             </div>
                                             {% with similar_count=query_info.similar_count %}
                                                 {% with duplicate_count=query_info.duplicate_count %}
