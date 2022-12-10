@@ -1,0 +1,87 @@
+{% load style_tags %}
+<div
+    id="request-{{ request_id }}"
+    hx-get="{{ request_id }}"
+    hx-trigger="every 1s [!{{ request.finished|lower }}]"
+    hx-target="#request-{{ request_id }}"
+    hx-swap="outerHTML"
+>
+    <div
+        class="
+            request-list__item columns is-flex is-clickable py-2 px-4
+            {% if not request.finished %}request-list__item__disabled{% endif %}
+        "
+        hx-get="request-details/{{ request_id }}"
+        hx-target="#main-content"
+        hx-indicator="#main-loading-indicator"
+        hx-push-url="true"
+        hx-trigger="click[{{ request.finished|lower }}]"
+        hx-swap="innerHTML"
+    >
+        <div class="request-list__item__overlay">
+            <div class="title is-5">
+                Request in progress
+                <div class="loading-indicator mt-2">
+                    <i class="fa-solid fa-circle-notch"></i>
+                </div>
+            </div>
+        </div>
+        <div class="column is-flex is-5 is-align-items-center">
+            <span class="tag is-medium {{ request.request.method|method_class}}">{{ request.request.method }}</span>
+            <div class="ml-5">
+                <h3 class="title is-5 has-fg-color">{{ request.request.path }}</h3>
+                <div class="subtitle is-7 is-family-monospace">
+                    {{ request.django_view }}
+                </div>
+            </div>
+        </div>
+        <div class="column is-2 has-fg-color is-flex">
+            <div>
+                <div class="title is-6 mt-1 mb-2">Status code</div>
+                <div class="tag {{ request.response.status_code|status_code_class }}">
+                    {{ request.response.status_code }}
+                </div>
+            </div>
+        </div>
+        <div class="column has-fg-color">
+            <div class="title is-6 m-0 mb-1">
+                <span>Database information</span>
+                <span class="icon">
+                    <i class="fa-solid fa-database"></i>
+                </span>
+            </div>
+            {% with database_count=request.sql_collector.databases|length %}
+                {% with query_count=request.sql_collector.queries|length %}
+                    {% with similar_count=request.sql_collector.total_similar_queries %}
+                        {% with duplicate_count=request.sql_collector.total_duplicate_queries %}
+                            {% if similar_count %}
+                                <span class="tag is-warning">{{ similar_count }} similar quer{{similar_count|pluralize:"y,ies" }}</span>
+                            {% endif %}
+                            {% if duplicate_count %}
+                                <span class="tag is-danger mt-1">{{ duplicate_count }} duplicate quer{{duplicate_count|pluralize:"y,ies" }}</span>
+                            {% endif %}
+                            <div class="mt-1">{{ database_count }} database{{database_count|pluralize }}</div>
+                            <div>{{ query_count }} total quer{{query_count|pluralize:"y,ies" }}</div>
+                        {% endwith %}
+                    {% endwith %}
+                {% endwith %}
+            {% endwith %}
+        </div>
+        <div class="column is-2 has-fg-color is-flex">
+            <div class="is-flex is-align-items-center">
+                <div>
+                    <div class="icon-text mb-2">
+                        <span class="icon">
+                            <i class="fa-solid fa-stopwatch"></i>
+                        </span>
+                        <span>{{ request.duration|default_if_none:"0" }} ms</span>
+                    </div>
+                    <div class="icon-text">
+                        <span class="icon"><i class="fa-solid fa-clock"></i></span>
+                        <span>{{ request.start_time|date:"H : i : s" }}.{{ request.start_time|date:"u"|slice:3 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

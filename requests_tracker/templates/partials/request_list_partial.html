@@ -1,5 +1,5 @@
-<div class="columns">
-    <div class="field column is-two-thirds">
+<div class="columns is-flex is-justify-content-space-between">
+    <div class="field column is-half">
         <div class="mb-1">
             <label for="requests_filter">Search</label>
         </div>
@@ -21,7 +21,7 @@
             </span>
         </p>
     </div>
-    <div class="column">
+    <div class="column is-2">
         <div class="control">
             <div class="mb-1">
                 <label for="requests_sorter">Order by</label>
@@ -82,13 +82,13 @@
             </div>
         </div>
     </div>
-    <div class="column is-1 refresh-interval-control">
+    <div class="column refresh-interval-control">
         <div class="mb-1">
-            <label for="refresh_button">Refresh</label>
+            <label for="refresh_button">Auto refresh</label>
         </div>
-        <div class="control has-icons-left">
+        <div class="control has-icons-left is-fullwidth">
             <div
-                class="select"
+                class="select is-fullwidth"
                 hx-get="/__requests_tracker__/?requests_direction={{ requests_direction }}"
                 hx-trigger="
                     every 1s [document.getElementById('refresh-interval-select').value == '1s'],
@@ -102,7 +102,7 @@
                 hx-target="#request-list-search-results"
                 hx-sync="[name='requests_filter']:abort, [name='requests_sorter']:abort, [name='requests_direction']:abort"
             >
-                <select id="refresh-interval-select">
+                <select id="refresh-interval-select" class="is-fullwidth">
                     <option selected>Off</option>
                     <option value="1s">1s</option>
                     <option value="3s">3s</option>
@@ -116,6 +116,50 @@
                 <i class="fa-solid fa-arrows-rotate"></i>
             </div>
         </div>
+    </div>
+    <div class="column field">
+        <div class="mb-1">
+            <p>Refresh</p>
+        </div>
+        <button
+            class="button is-fullwidth"
+            hx-get="/__requests_tracker__/"
+            hx-target="#request-list-search-results"
+            hx-include="[name='requests_filter'], [name='requests_sorter'], [name='requests_direction']"
+            hx-indicator="#refresh-loading-indicator, #refresh-button-content"
+        >
+            <span id="refresh-button-content">
+                <span class="icon">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </span>
+                <span>Refresh</span>
+            </span>
+            <span class="loading-indicator" id="refresh-loading-indicator">
+                <i class="fa-solid fa-circle-notch"></i>
+            </span>
+        </button>
+    </div>
+    <div class="column">
+        <div class="mb-1">
+            <p>Clear</p>
+        </div>
+        <button
+            class="button is-fullwidth"
+            hx-delete="/__requests_tracker__/delete"
+            hx-target="#request-list-search-results"
+            hx-push-url="/__requests_tracker__/"
+            hx-indicator="#clear-loading-indicator, #clear-button-content"
+        >
+            <span id="clear-button-content">
+                <span class="icon">
+                    <i class="fa-solid fa-delete-left"></i>
+                </span>
+                <span>Clear</span>
+            </span>
+            <span class="loading-indicator" id="clear-loading-indicator">
+                <i class="fa-solid fa-circle-notch"></i>
+            </span>
+        </button>
     </div>
 </div>
 <div id="request-list-search-results">

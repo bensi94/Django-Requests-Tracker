@@ -19,6 +19,38 @@
     border-color: #363636
     border-style: solid
     background-color: black
+    .request-list__item__overlay
+      display: none
+    &__disabled
+      cursor: wait !important
+      position: relative
+      &:hover
+        background-color: black !important
+      .request-list__item__overlay
+        display: block
+        position: absolute
+        left: 0
+        top: 0
+        width: 100%
+        height: 100%
+        background-color: rgba(70, 70, 70, 0.6)
+        backdrop-filter: blur(3px)
+        z-index: 1
+        border-radius: 20px
+        box-shadow: inset 0 0 10px 10px black
+        text-align: center
+        .title
+          display: flex
+          flex-direction: column
+          align-items: center
+          justify-content: center
+          height: 100%
+          .loading-indicator
+            animation-name: spin
+            animation-duration: .9s
+            animation-iteration-count: infinite
+            animation-timing-function: linear
+
 
     &:first-child
       border-top-left-radius: 8px
@@ -60,6 +92,32 @@
   animation-duration: .6s
   animation-iteration-count: infinite
   animation-timing-function: linear
+
+.loading-indicator
+  animation-name: spin
+  animation-duration: .6s
+  animation-iteration-count: infinite
+  animation-timing-function: linear
+
+#refresh-loading-indicator
+  display: none
+
+  &.htmx-request
+    display: inline
+
+#refresh-button-content
+  &.htmx-request
+    display: none
+
+#clear-loading-indicator
+  display: none
+
+  &.htmx-request
+    display: inline
+
+#clear-button-content
+  &.htmx-request
+    display: none
 
 @keyframes spin
   from

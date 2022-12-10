@@ -41,6 +41,11 @@ def requests_tracker_middleware(
                 return await get_response(request)
 
             if is_requests_tracker_request(request):
+                if (
+                    request.method == "DELETE"
+                    and request.path == "/__requests_tracker__/delete"
+                ):
+                    request_collectors.clear()
                 request.request_collectors = request_collectors
                 return await get_response(request)
 
@@ -59,6 +64,11 @@ def requests_tracker_middleware(
                 return get_response(request)
 
             if is_requests_tracker_request(request):
+                if (
+                    request.method == "DELETE"
+                    and request.path == "/__requests_tracker__/delete"
+                ):
+                    request_collectors.clear()
                 request.request_collectors = request_collectors
                 return get_response(request)
 

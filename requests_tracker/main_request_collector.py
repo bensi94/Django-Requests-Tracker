@@ -48,6 +48,10 @@ class MainRequestCollector:
             else None
         )
 
+    @property
+    def finished(self) -> bool:
+        return self.response is not None
+
     def set_end_time(self) -> None:
         self.end_time = datetime.now()
 
@@ -70,6 +74,7 @@ class MainRequestCollector:
             "end_time": self.end_time,
             "duration": self.duration,
             "response": self.response,
+            "finished": self.finished,
             **self.get_collectors(),
         }
 

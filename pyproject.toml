@@ -23,7 +23,7 @@ django-stubs = {extras = ["compatible-mypy"], version = "^1.13.0"}
 types-psycopg2 = "^2.9.21.1"
 pytest-env = "^0.8.1"
 pytest-cov = "^4.0.0"
-ruff = "^0.0.161"
+ruff = "^0.0.173"
 pytest-django = "^4.5.2"
 djhtml = "^1.5.2"
 

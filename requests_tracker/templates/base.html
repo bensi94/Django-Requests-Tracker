@@ -21,7 +21,7 @@
         {% block head-extras %}
         {% endblock head-extras %}
     </head>
-    <body>
+    <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
         <div class="container page-container">
             <a href="/__requests_tracker__/">
                 <h1 class="title has-fg-color is-2">Request Tracker</h1>

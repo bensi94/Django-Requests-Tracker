@@ -89,6 +89,23 @@ def index(request: RequestWithCollectors) -> TemplateResponse:
     )
 
 
+def single_request_item(
+    request: RequestWithCollectors, request_id: UUID
+) -> TemplateResponse:
+    return TemplateResponse(
+        request,
+        "partials/request_list_item.html",
+        context={
+            "request": request.request_collectors[request_id],
+            "request_id": request_id,
+        },
+    )
+
+
+def clear_request_list(request: RequestWithCollectors) -> TemplateResponse:
+    return index(request)
+
+
 def request_details(
     request: RequestWithCollectors, request_id: UUID
 ) -> TemplateResponse:
