@@ -89,7 +89,7 @@ class CustomCursorWrapper:
         return [self._quote_expr(p) for p in params]
 
     def _decode(self, param: ExecuteParametersOrSequence) -> "DecodeReturn":
-        if PostgresJson and isinstance(param, PostgresJson):
+        if PostgresJson is not None and isinstance(param, PostgresJson):
             return param.dumps(param.adapted)
 
         # If a sequence type, decode each element separately
@@ -246,8 +246,8 @@ def wrap_cursor(
             else CustomCursorWrapper(cursor, connection, statistics_collector)
         )
 
-    setattr(connection, "cursor", cursor)
-    setattr(connection, "chunked_cursor", chunked_cursor)
+    setattr(connection, "cursor", cursor)  # noqa: B010
+    setattr(connection, "chunked_cursor", chunked_cursor)  # noqa: B010
     return cursor
 
 
@@ -262,7 +262,7 @@ def unwrap_cursor(connection: CustomDataBaseWrapper) -> None:
         if connection.original_cursor == connection.__class__.cursor:  # type: ignore
             del connection.cursor
         else:
-            setattr(connection, "cursor", connection.original_cursor)
+            setattr(connection, "cursor", connection.original_cursor)  # noqa: B010
         del connection.original_cursor
 
         if (
@@ -271,5 +271,9 @@ def unwrap_cursor(connection: CustomDataBaseWrapper) -> None:
         ):
             del connection.chunked_cursor
         else:
-            setattr(connection, "chunked_cursor", connection.original_chunked_cursor)
+            setattr(  # noqa: B010
+                connection,
+                "chunked_cursor",
+                connection.original_chunked_cursor,
+            )
         del connection.original_chunked_cursor

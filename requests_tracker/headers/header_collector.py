@@ -35,7 +35,7 @@ class HeaderCollector(Collector):
     }
 
     def process_request(self, request: HttpRequest, response: HttpResponse) -> None:
-        request_env = list(sorted(request.META.items()))
+        request_env = sorted(request.META.items())
         self.request_headers = {
             unmangle(key): value for (key, value) in request_env if is_http_header(key)
         }

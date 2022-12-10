@@ -108,7 +108,7 @@ class SQLCollector(Collector):
                     query.duplicate_count = count
                 duplicate_counts[alias] += count
 
-        for alias, info in self.databases.items():
+        for alias, _ in self.databases.items():
             self.databases[alias].similar_count = similar_counts[alias]
             self.databases[alias].duplicate_count = duplicate_counts[alias]
 
