@@ -34,6 +34,11 @@ class HeaderCollector(Collector):
         "TZ",
     }
 
+    def __init__(self) -> None:
+        self.request_headers = {}
+        self.response_headers = {}
+        self.environ = {}
+
     def process_request(self, request: HttpRequest, response: HttpResponse) -> None:
         request_env = sorted(request.META.items())
         self.request_headers = {

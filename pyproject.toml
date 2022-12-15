@@ -25,6 +25,8 @@ pytest-cov = "^4.0.0"
 ruff = "^0.0.173"
 pytest-django = "^4.5.2"
 djhtml = "^1.5.2"
+freezegun = "^1.2.2"
+types-freezegun = "^1.1.10"
 
 
 [tool.pytest.ini_options]

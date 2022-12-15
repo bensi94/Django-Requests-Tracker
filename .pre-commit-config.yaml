@@ -28,6 +28,7 @@ repos:
         additional_dependencies:
           - django-stubs
           - types-psycopg2
+          - types-freezegun
           - pytest
   - repo: local
     hooks:

@@ -13,3 +13,5 @@ TEMPLATES = [{"BACKEND": "django.template.backends.django.DjangoTemplates"}]
 
 
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": "test_db"}}
+
+ROOT_URLCONF = "requests_tracker.urls"

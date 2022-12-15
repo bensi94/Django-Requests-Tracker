@@ -16,7 +16,7 @@ class MainRequestCollector:
     django_view: str
     start_time: datetime
     end_time: datetime | None
-    response: HttpResponse | None = None
+    response: HttpResponse | None
 
     sql_collector: SQLCollector
     header_collector: HeaderCollector
@@ -27,6 +27,7 @@ class MainRequestCollector:
         self.django_view = resolve(self.request.path)._func_path
         self.start_time = datetime.now()
         self.end_time = None
+        self.response = None
 
         self.sql_collector = SQLCollector()
         self.header_collector = HeaderCollector()
