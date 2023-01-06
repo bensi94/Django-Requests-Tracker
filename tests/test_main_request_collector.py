@@ -3,6 +3,7 @@ from uuid import UUID
 
 import pytest
 from django.http import HttpRequest, HttpResponse
+from django.test import RequestFactory
 from freezegun import freeze_time
 
 from requests_tracker.main_request_collector import MainRequestCollector
@@ -10,10 +11,8 @@ from requests_tracker.sql.dataclasses import SQLQueryInfo
 
 
 @pytest.fixture()
-def fake_request() -> HttpRequest:
-    request = HttpRequest()
-    request.path = "/"
-    return request
+def fake_request(request_factory: RequestFactory) -> HttpRequest:
+    return request_factory.get("/__requests-tracker__/")
 
 
 @pytest.fixture()

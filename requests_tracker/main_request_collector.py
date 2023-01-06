@@ -38,6 +38,7 @@ class MainRequestCollector:
         """
         self.set_end_time()
         self.response = response
+        self.sql_collector.unwrap()
         self.header_collector.process_request(self.request, self.response)
 
     @property

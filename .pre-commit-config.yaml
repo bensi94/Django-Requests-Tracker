@@ -30,6 +30,7 @@ repos:
           - types-psycopg2
           - types-freezegun
           - pytest
+        exclude: "example_project"
   - repo: local
     hooks:
       - id: pytest-check

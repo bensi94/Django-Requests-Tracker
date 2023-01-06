@@ -27,6 +27,7 @@ pytest-django = "^4.5.2"
 djhtml = "^1.5.2"
 freezegun = "^1.2.2"
 types-freezegun = "^1.1.10"
+pytest-asyncio = "^0.20.3"
 
 
 [tool.pytest.ini_options]
@@ -47,10 +48,11 @@ select = [
 
 
 [tool.coverage.run]
-omit = ["tests/*"]
+omit = ["tests/*", "example_project/*"]
 
 [tool.mypy]
 plugins = "mypy_django_plugin.main"
+exclude = "example_project"
 
 
 [tool.django-stubs]
