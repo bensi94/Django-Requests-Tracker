@@ -22,7 +22,7 @@ class Command(BaseCommand):
             },
         )
         requests.get(f"{base_url}/ninja/sync/items")
-        requests.delete(f"{base_url}/ninja/sync/items/{create_response.json()['id']}")
+        requests.delete(f"{base_url}/ninja/sync/item/{create_response.json()['id']}")
 
         # Ninja Async
         create_response = requests.post(
@@ -35,7 +35,7 @@ class Command(BaseCommand):
             },
         )
         requests.get(f"{base_url}/ninja/async/items")
-        requests.delete(f"{base_url}/ninja/async/items/{create_response.json()['id']}")
+        requests.delete(f"{base_url}/ninja/async/item/{create_response.json()['id']}")
 
         # Ninja query examples
         requests.get(f"{base_url}/ninja/query-examples/duplicate-query")

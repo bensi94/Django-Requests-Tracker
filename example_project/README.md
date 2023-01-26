@@ -17,10 +17,15 @@ The project has a simple example API both for Django Ninja and Django REST Frame
     ```console
     python manage.py create_demo_data
     ```
-* Run the development server:
-    ```console
-    python manage.py runserver
-    ```
+* Run the development server either synchronously or asynchronously:
+  *  synchronously:
+      ```console
+      python manage.py runserver
+      ```
+  * asynchronously:
+      ```console
+      python run_async.py
+      ```
 * Go to [http://localhost:8000/__requests_tracker__/](http://localhost:8000/__requests_tracker__/) to see the running Requests Tracker,
 the requests list will however be empty as there are no requests yet.
 

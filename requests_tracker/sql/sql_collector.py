@@ -1,16 +1,8 @@
 import uuid
 from collections import defaultdict
-from typing import cast
-
-from django.db import connections
 
 from requests_tracker.base_collector import Collector
 from requests_tracker.sql.dataclasses import PerDatabaseInfo, SQLQueryInfo
-from requests_tracker.sql.tracking import (
-    CustomDataBaseWrapper,
-    unwrap_cursor,
-    wrap_cursor,
-)
 
 SimilarQueryGroupsType = dict[tuple[str, str], list[SQLQueryInfo]]
 DuplicateQueryGroupsType = dict[tuple[str, tuple[str, str]], list[SQLQueryInfo]]
@@ -30,14 +22,6 @@ class SQLCollector(Collector):
         self.num_queries = 0
         # synthetic transaction IDs, keyed by DB alias
         self.transaction_ids = {}
-
-        for connection in connections.all():
-            wrap_cursor(cast(CustomDataBaseWrapper, connection), self)
-
-    @staticmethod
-    def unwrap() -> None:
-        for connection in connections.all():
-            unwrap_cursor(cast(CustomDataBaseWrapper, connection))
 
     def record(self, sql_query_info: SQLQueryInfo) -> None:
         self.queries.append(sql_query_info)

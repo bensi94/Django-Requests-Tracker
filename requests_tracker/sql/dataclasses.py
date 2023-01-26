@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
 
-    from requests_tracker.sql.tracking import ExecuteParametersOrSequence
+    from requests_tracker.sql.sql_tracker import ExecuteParametersOrSequence
     from requests_tracker.stack_trace import StackTrace
 
 

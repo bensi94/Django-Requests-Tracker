@@ -32,5 +32,5 @@ class NoteSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret["tags"] = [tag.value for tag in Tag.objects.filter(note_id=instance.id)]
+        ret["tags"] = [tag.value for tag in instance.tagdrfapp_set.all()]
         return ret

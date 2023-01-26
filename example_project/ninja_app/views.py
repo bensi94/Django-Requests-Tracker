@@ -71,7 +71,9 @@ def add(request: HttpRequest, payload: NoteIn) -> NoteOut:
 def get_notes(request: HttpRequest) -> list[NoteOut]:
     return [
         NoteOut.from_model(note)
-        for note in Note.objects.select_related("created_by").all()
+        for note in Note.objects.prefetch_related("tagninjaapp_set")
+        .select_related("created_by")
+        .all()
     ]
 
 
@@ -106,7 +108,9 @@ async def async_add(request: HttpRequest, payload: NoteIn) -> NoteOut:
 async def async_get_notes(request: HttpRequest) -> list[NoteOut]:
     return [
         await NoteOut.afrom_model(note)
-        async for note in Note.objects.select_related("created_by").all()
+        async for note in Note.objects.prefetch_related("tagninjaapp_set")
+        .select_related("created_by")
+        .all()
     ]
 
 

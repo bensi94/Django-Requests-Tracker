@@ -11,7 +11,11 @@ from restframework_app.serializers import NoteSerializer
 @api_view(["GET", "POST"])
 def notes_function_view(request: Request) -> Response:
     if request.method == "GET":
-        notes = Note.objects.all()
+        notes = (
+            Note.objects.prefetch_related("tagdrfapp_set")
+            .select_related("created_by")
+            .all()
+        )
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data)
     elif request.method == "POST":
@@ -31,7 +35,11 @@ def delete_note_function_view(request: Request, note_id: int) -> Response:
 
 class NoteClassViewList(APIView):
     def get(self, request: Request) -> Response:
-        notes = Note.objects.all()
+        notes = (
+            Note.objects.prefetch_related("tagdrfapp_set")
+            .select_related("created_by")
+            .all()
+        )
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data)
 

@@ -5,14 +5,32 @@ from django.contrib.auth.models import User
 from django.db import connections
 
 from requests_tracker.sql.sql_collector import SQLCollector
-from requests_tracker.sql.tracking import CustomCursorWrapper
+from requests_tracker.sql.sql_hook import install_sql_hook
+from requests_tracker.sql.sql_tracker import SQLTracker
 
 
 @pytest.fixture
 def sql_collector() -> Generator[SQLCollector, None, None]:
+    from django.db.backends.base.base import BaseDatabaseWrapper
+    from django.db.backends.utils import CursorWrapper
+
+    real_execute = CursorWrapper.execute
+    real_executemany = CursorWrapper.executemany
+    real_call_proc = CursorWrapper.callproc
+    real_connect = BaseDatabaseWrapper.connect
+
+    install_sql_hook()
     sql_collector = SQLCollector()
-    yield sql_collector
-    sql_collector.unwrap()
+    with SQLTracker(sql_collector) as sql_tracker:
+        sql_tracker.set_database_wrapper(connections["default"])
+
+        yield sql_collector
+
+    # Reset to default before pytest-django teardown begins
+    CursorWrapper.execute = real_execute  # type: ignore
+    CursorWrapper.executemany = real_executemany  # type: ignore
+    CursorWrapper.callproc = real_call_proc  # type: ignore
+    BaseDatabaseWrapper.connect = real_connect  # type: ignore
 
 
 @pytest.mark.django_db
@@ -21,7 +39,6 @@ def test_record__single_query(sql_collector: SQLCollector) -> None:
     result = User.objects.filter(username="test").exists()
 
     assert result is False
-    assert type(connections.all()[0].cursor()) is CustomCursorWrapper  # type: ignore
     assert len(sql_collector.queries) == sql_collector.num_queries == 1
     query = sql_collector.queries[0]
     assert (

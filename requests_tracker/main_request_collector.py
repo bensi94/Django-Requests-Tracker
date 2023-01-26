@@ -3,7 +3,7 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from django.http import HttpRequest, HttpResponse
-from django.urls import resolve
+from django.urls import Resolver404, resolve
 
 from requests_tracker.base_collector import Collector
 from requests_tracker.headers.header_collector import HeaderCollector
@@ -24,7 +24,10 @@ class MainRequestCollector:
     def __init__(self, request: HttpRequest):
         self.request_id = uuid4()
         self.request = request
-        self.django_view = resolve(self.request.path)._func_path
+        try:
+            self.django_view = resolve(self.request.path)._func_path
+        except Resolver404:
+            self.django_view = "NOT FOUND"
         self.start_time = datetime.now()
         self.end_time = None
         self.response = None
@@ -38,7 +41,6 @@ class MainRequestCollector:
         """
         self.set_end_time()
         self.response = response
-        self.sql_collector.unwrap()
         self.header_collector.process_request(self.request, self.response)
 
     @property

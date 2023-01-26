@@ -9,6 +9,8 @@ from django.utils.decorators import sync_and_async_middleware
 from requests_tracker import APP_NAME
 from requests_tracker.main_request_collector import MainRequestCollector
 from requests_tracker.settings import debug_application
+from requests_tracker.sql.sql_hook import install_sql_hook
+from requests_tracker.sql.sql_tracker import SQLTracker
 
 
 class RequestWithCollectors(HttpRequest):
@@ -31,6 +33,7 @@ def requests_tracker_middleware(
     get_response: Any,
 ) -> Any:
     request_collectors: dict[UUID, MainRequestCollector] = {}
+    install_sql_hook()
 
     if asyncio.iscoroutinefunction(get_response):
 
@@ -52,7 +55,8 @@ def requests_tracker_middleware(
             request_collector = MainRequestCollector(request)
             request_collectors[request_collector.request_id] = request_collector
 
-            response = await get_response(request)
+            with SQLTracker(request_collector.sql_collector):
+                response = await get_response(request)
             request_collector.wrap_up_request(response)
 
             return response
@@ -75,7 +79,8 @@ def requests_tracker_middleware(
             request_collector = MainRequestCollector(request)
             request_collectors[request_collector.request_id] = request_collector
 
-            response = get_response(request)
+            with SQLTracker(request_collector.sql_collector):
+                response = get_response(request)
             request_collector.wrap_up_request(response)
 
             return response
