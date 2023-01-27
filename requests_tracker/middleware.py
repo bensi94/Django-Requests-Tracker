@@ -2,6 +2,7 @@ import asyncio
 from typing import Any
 from uuid import UUID
 
+from django.conf import settings
 from django.http import HttpRequest
 from django.urls import Resolver404, resolve
 from django.utils.decorators import sync_and_async_middleware
@@ -28,61 +29,77 @@ def is_requests_tracker_request(request: HttpRequest) -> bool:
     return bool(resolver_match.namespaces and resolver_match.namespaces[-1] == APP_NAME)
 
 
+async def middleware_async(
+    request: RequestWithCollectors,
+    get_response: Any,
+    request_collectors: dict[UUID, MainRequestCollector],
+) -> Any:
+    if not debug_application(request):
+        return await get_response(request)
+
+    if is_requests_tracker_request(request):
+        if (
+            request.method == "DELETE"
+            and request.path == "/__requests_tracker__/delete"
+        ):
+            request_collectors.clear()
+        request.request_collectors = request_collectors
+        return await get_response(request)
+
+    request_collector = MainRequestCollector(request)
+    request_collectors[request_collector.request_id] = request_collector
+
+    with SQLTracker(request_collector.sql_collector):
+        response = await get_response(request)
+    request_collector.wrap_up_request(response)
+
+    return response
+
+
+def middleware_sync(
+    request: RequestWithCollectors,
+    get_response: Any,
+    request_collectors: dict[UUID, MainRequestCollector],
+) -> Any:
+    if not debug_application(request):
+        return get_response(request)
+
+    if is_requests_tracker_request(request):
+        if (
+            request.method == "DELETE"
+            and request.path == "/__requests_tracker__/delete"
+        ):
+            request_collectors.clear()
+        request.request_collectors = request_collectors
+        return get_response(request)
+
+    request_collector = MainRequestCollector(request)
+    request_collectors[request_collector.request_id] = request_collector
+
+    with SQLTracker(request_collector.sql_collector):
+        response = get_response(request)
+    request_collector.wrap_up_request(response)
+
+    return response
+
+
 @sync_and_async_middleware
 def requests_tracker_middleware(
     get_response: Any,
 ) -> Any:
     request_collectors: dict[UUID, MainRequestCollector] = {}
-    install_sql_hook()
+
+    if settings.DEBUG:
+        install_sql_hook()
 
     if asyncio.iscoroutinefunction(get_response):
 
-        async def middleware(
-            request: RequestWithCollectors,
-        ) -> Any:
-            if not debug_application(request):
-                return await get_response(request)
-
-            if is_requests_tracker_request(request):
-                if (
-                    request.method == "DELETE"
-                    and request.path == "/__requests_tracker__/delete"
-                ):
-                    request_collectors.clear()
-                request.request_collectors = request_collectors
-                return await get_response(request)
-
-            request_collector = MainRequestCollector(request)
-            request_collectors[request_collector.request_id] = request_collector
-
-            with SQLTracker(request_collector.sql_collector):
-                response = await get_response(request)
-            request_collector.wrap_up_request(response)
-
-            return response
+        async def middleware(request: RequestWithCollectors) -> Any:
+            return await middleware_async(request, get_response, request_collectors)
 
     else:
 
         def middleware(request: RequestWithCollectors) -> Any:  # type: ignore
-            if not debug_application(request):
-                return get_response(request)
-
-            if is_requests_tracker_request(request):
-                if (
-                    request.method == "DELETE"
-                    and request.path == "/__requests_tracker__/delete"
-                ):
-                    request_collectors.clear()
-                request.request_collectors = request_collectors
-                return get_response(request)
-
-            request_collector = MainRequestCollector(request)
-            request_collectors[request_collector.request_id] = request_collector
-
-            with SQLTracker(request_collector.sql_collector):
-                response = get_response(request)
-            request_collector.wrap_up_request(response)
-
-            return response
+            return middleware_sync(request, get_response, request_collectors)
 
     return middleware

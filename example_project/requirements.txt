@@ -1,3 +1,5 @@
+django-requests-tracker
+
 django
 djangorestframework
 django-ninja

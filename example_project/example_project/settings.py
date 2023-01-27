@@ -121,6 +121,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "static"  # Running async via uvicorn requires this
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -130,5 +131,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 if DEBUG:
     INSTALLED_APPS += ["requests_tracker"]
-    INTERNAL_IPS = ["127.0.0.1"]
     MIDDLEWARE += ["requests_tracker.middleware.requests_tracker_middleware"]
+    INTERNAL_IPS = ["127.0.0.1"]
