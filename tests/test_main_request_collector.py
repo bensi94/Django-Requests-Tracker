@@ -12,7 +12,7 @@ from requests_tracker.sql.dataclasses import SQLQueryInfo
 
 @pytest.fixture()
 def fake_request(request_factory: RequestFactory) -> HttpRequest:
-    return request_factory.get("/__requests-tracker__/")
+    return request_factory.get("/__requests_tracker__/")
 
 
 @pytest.fixture()
@@ -30,6 +30,20 @@ def test__init__(collector: MainRequestCollector, fake_request: HttpRequest) -> 
     assert isinstance(collector.request_id, UUID)
     assert collector.request == fake_request
     assert collector.django_view == "requests_tracker.views.index"
+    assert collector.start_time == datetime(2022, 12, 14, 12, 0, 0)
+    assert collector.end_time is None
+    assert collector.response is None
+    assert collector.duration is None
+    assert collector.finished is False
+
+
+@freeze_time("2022-12-14 12:00:00")
+def test__init__with_not_found_request(request_factory: RequestFactory) -> None:
+    request = request_factory.get("/not-found.html")
+    collector = MainRequestCollector(request)
+
+    assert collector.request == request
+    assert collector.django_view == "NOT FOUND"
     assert collector.start_time == datetime(2022, 12, 14, 12, 0, 0)
     assert collector.end_time is None
     assert collector.response is None

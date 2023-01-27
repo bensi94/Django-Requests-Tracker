@@ -50,6 +50,9 @@ select = [
 [tool.coverage.run]
 omit = ["tests/*", "example_project/*"]
 
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:", "except ImportError:"]
+
 [tool.mypy]
 plugins = "mypy_django_plugin.main"
 exclude = "example_project"
