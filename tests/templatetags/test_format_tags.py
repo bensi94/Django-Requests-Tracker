@@ -1,3 +1,6 @@
+import os
+from typing import Any
+
 import pytest
 
 from tests.templatetags.conftest import TemplateRenderer
@@ -66,6 +69,33 @@ def test_dict_key_index(
     assert result == f"<div>{expected_index}</div>"
 
 
+@pytest.mark.parametrize(
+    "input_value, expected_result",
+    [
+        (None, "None"),
+        ("test", "test"),
+        ({"test": "test"}, "<pre>{'test': 'test'}</pre>"),
+        (["test"], "<pre>['test']</pre>"),
+        (("test",), "<pre>('test',)</pre>"),
+        (1, "1"),
+    ],
+)
+def test_pprint_datastructure_values(
+    input_value: Any,
+    expected_result: str,
+    template_renderer: TemplateRenderer,
+) -> None:
+    template = """
+    {% load format_tags %}
+    <div>{{ value|pprint_datastructure_values }}</div>
+    """
+    context = {"value": input_value}
+
+    result = template_renderer(template, context=context, strip=True)
+
+    assert result == f"<div>{expected_result}</div>"
+
+
 def test_simplify_sql(template_renderer: TemplateRenderer) -> None:
     template = """
     {% load format_tags %}
@@ -115,3 +145,31 @@ def test_format_sql(template_renderer: TemplateRenderer) -> None:
         "&lt;strong&gt;&lt;br/&gt;&amp;nbsp;LIMIT&lt;/strong&gt; 21"
     )
     assert result == f"<div>{expected_formatted_sql}</div>"
+
+
+@pytest.mark.parametrize(
+    "path, expected_formatted_path",
+    [
+        (f"{os.getcwd()}/some/fake/extended_path.py", ".../some/fake/extended_path.py"),
+        (
+            "/fake/user/site-packages/package/file.py",
+            ".../site-packages/package/file.py",
+        ),
+        ("/should/not/be/change", "/should/not/be/change"),
+    ],
+)
+def test_simplify_path(
+    path: str,
+    expected_formatted_path: str,
+    template_renderer: TemplateRenderer,
+) -> None:
+    template = """
+    {% load format_tags %}
+    <div>{{ path|simplify_path }}</div>
+    """
+
+    context = {"path": path}
+
+    result = template_renderer(template, context=context, strip=True)
+
+    assert result == f"<div>{expected_formatted_path}</div>"

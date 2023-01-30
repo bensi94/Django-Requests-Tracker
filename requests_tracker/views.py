@@ -112,7 +112,7 @@ def request_details(
     template = (
         "partials/request_details_partial.html"
         if is_htmx_request(request)
-        else "request_details.html",
+        else "request_details.html"
     )
     context = request.request_collectors[UUID(request_id)].get_as_context()
 

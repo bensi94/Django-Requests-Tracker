@@ -46,7 +46,7 @@ jobs:
       run: poetry run black . --check
 
     - name: Check with mypy
-      run: poetry run mypy . --strict --enable-recursive-aliases
+      run: poetry run mypy . --strict
 
     - name: Test with pytest
       run: |

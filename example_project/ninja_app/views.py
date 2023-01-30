@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.http import Http404, HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja import NinjaAPI, Router, Schema
+
 from ninja_app.models import NoteNinjaApp as Note
 from ninja_app.models import TagNinjaApp as Tag
 

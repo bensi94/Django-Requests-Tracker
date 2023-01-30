@@ -60,6 +60,34 @@ def test_record__single_query(sql_collector: SQLCollector) -> None:
 
 
 @pytest.mark.django_db
+def test_record__executemany(sql_collector: SQLCollector) -> None:
+    sql = "INSERT INTO django_content_type (app_label, model) VALUES (%s, %s)"
+    with connections["default"].cursor() as cursor:
+        cursor.executemany(sql, [("auth", "test1"), ("auth", "test2")])
+
+    assert len(sql_collector.queries) == sql_collector.num_queries == 1
+    query = sql_collector.queries[0]
+    assert query.sql == sql
+    assert query.params == '[["auth", "test1"], ["auth", "test2"]]'
+    assert query.raw_sql == (
+        "INSERT INTO django_content_type (app_label, model) "
+        "VALUES ('''auth''', '''auth'''), ('''test1''', '''test2''')"
+    )
+    assert query.vendor == "sqlite"
+    assert query.alias == "default"
+    assert query.is_select is False
+    assert query.is_slow is False
+    assert query.similar_count == 0
+    assert query.duplicate_count == 0
+    assert query.duration > 0
+
+
+@pytest.mark.django_db
+def test_record__callproc(sql_collector: SQLCollector) -> None:
+    pass
+
+
+@pytest.mark.django_db
 def test_generate_statistics__duplicate_queries(sql_collector: SQLCollector) -> None:
     """Tests that generate_statistics counts duplicate queries correctly"""
     query_result_1 = User.objects.filter(username="test").exists()

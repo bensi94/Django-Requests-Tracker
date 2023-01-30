@@ -14,8 +14,12 @@ def install_sql_hook() -> None:
 
     def execute(self: CursorWrapper, sql: str, params: ExecuteParameters = None) -> Any:
         sql_tracker = SQLTracker.current
-        sql_tracker.set_database_cursor(self)
-        sql_tracker.record(real_execute, self, sql, params)
+        sql_tracker.record(
+            method=real_execute,
+            cursor_self=self,
+            sql=sql,
+            params=params,
+        )
 
     def executemany(
         self: CursorWrapper,
@@ -23,8 +27,13 @@ def install_sql_hook() -> None:
         param_list: Sequence[ExecuteParameters],
     ) -> Any:
         sql_tracker = SQLTracker.current
-        sql_tracker.set_database_cursor(self)
-        sql_tracker.record(real_executemany, self, sql, param_list)
+        sql_tracker.record(
+            method=real_executemany,
+            cursor_self=self,
+            sql=sql,
+            params=param_list,
+            many=True,
+        )
 
     def callproc(
         self: CursorWrapper,
@@ -32,8 +41,12 @@ def install_sql_hook() -> None:
         params: ExecuteParameters = None,
     ) -> Any:
         sql_tracker = SQLTracker.current
-        sql_tracker.set_database_cursor(self)
-        sql_tracker.record(real_call_proc, self, procname, params)
+        sql_tracker.record(
+            method=real_call_proc,
+            cursor_self=self,
+            sql=procname,
+            params=params,
+        )
 
     def connect(self: BaseDatabaseWrapper) -> Any:
         real_connect(self)

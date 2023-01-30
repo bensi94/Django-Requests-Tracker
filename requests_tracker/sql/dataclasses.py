@@ -30,7 +30,7 @@ class SQLQueryInfo:
     is_slow: bool
     is_select: bool
     trans_id: str | None = None
-    iso_level: str | None = None
-    trans_status: str | None = None
+    iso_level: int | str | None = None
+    trans_status: int | None = None
     similar_count: int = 0
     duplicate_count: int = 0

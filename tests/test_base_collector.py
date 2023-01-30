@@ -8,7 +8,7 @@ class FakeCollector(Collector):
         return super().generate_statistics()
 
     def matches_search_filter(self, search: str) -> bool:
-        return super().matches_search_filter(search)
+        return super().matches_search_filter(search)  # type: ignore
 
 
 def test_generate_statistics() -> None:

@@ -1,6 +1,7 @@
 import contextlib
 import datetime
 import json
+import re
 import types
 from contextvars import ContextVar
 from decimal import Decimal
@@ -68,13 +69,11 @@ class SQLTracker(metaclass=SQLTrackerMeta):
     _old_sql_trackers: list["SQLTracker"]
     _sql_collector: SQLCollector | None
     _database_wrapper: BaseDatabaseWrapper | None
-    _database_cursor: CursorWrapper | None
 
     def __init__(self, sql_collector: SQLCollector | None = None) -> None:
         self._old_sql_trackers = []
         self._sql_collector = sql_collector
         self._database_wrapper = None
-        self._database_cursor = None
 
     def __enter__(self) -> "SQLTracker":
         self._old_sql_trackers.append(SQLTracker.current)
@@ -93,23 +92,57 @@ class SQLTracker(metaclass=SQLTrackerMeta):
     def set_database_wrapper(self, database_wrapper: BaseDatabaseWrapper) -> None:
         self._database_wrapper = database_wrapper
 
-    def set_database_cursor(self, database_cursor: CursorWrapper) -> None:
-        self._database_cursor = database_cursor
-
-    def _quote_expr(self, element: Any) -> str:
+    @staticmethod
+    def _quote_expr(element: Any) -> str:
         if isinstance(element, str):
-            return "'%s'" % element.replace("'", "''")
+            return f"""'{element.replace("'", "''")}'"""
         else:
             return repr(element)
 
-    def _quote_params(self, params: "ExecuteParametersOrSequence") -> QuoteParamsReturn:
+    def _quote_params(self, params: ExecuteParametersOrSequence) -> QuoteParamsReturn:
         if params is None:
             return params
         if isinstance(params, dict):
             return {key: self._quote_expr(value) for key, value in params.items()}
         return [self._quote_expr(p) for p in params]
 
-    def _decode(self, param: "ExecuteParametersOrSequence") -> "DecodeReturn":
+    def _get_raw_sql(
+        self,
+        cursor_self: CursorWrapper,
+        sql: str,
+        params: ExecuteParametersOrSequence,
+        many: bool,
+        vendor: str,
+    ) -> str:
+
+        # This is a hacky way to get the parameters correct for sqlite in executemany
+        if (
+            vendor == "sqlite"
+            and many
+            and isinstance(params, (tuple, list))
+            and isinstance(params[0], (tuple, list))
+        ):
+            final_params: list[str] = []
+            part_to_replace = re.search(r"(\(\s*%s.*\))", sql)[1]  # type: ignore
+            sql = sql.replace(
+                part_to_replace, ", ".join(part_to_replace for _ in params)
+            )
+            for current_params in zip(*params):  # noqa: B905
+                final_params.extend(current_params)
+
+            return self._database_wrapper.ops.last_executed_query(  # type: ignore
+                cursor_self,
+                sql,
+                self._quote_params(final_params),
+            )
+
+        return self._database_wrapper.ops.last_executed_query(  # type: ignore
+            cursor_self,
+            sql,
+            self._quote_params(params),
+        )
+
+    def _decode(self, param: ExecuteParametersOrSequence) -> "DecodeReturn":
         if PostgresJson is not None and isinstance(param, PostgresJson):
             return param.dumps(param.adapted)
 
@@ -128,19 +161,60 @@ class SQLTracker(metaclass=SQLTrackerMeta):
         except UnicodeDecodeError:
             return "(encoded string)"
 
+    @staticmethod
+    def _get_postgres_isolation_level(conn: Any) -> Any:
+        """
+        If an erroneous query was ran on the connection, it might
+        be in a state where checking isolation_level raises an exception.
+        """
+        try:
+            return conn.isolation_level
+        except conn.InternalError:
+            return "unknown"
+
+    def _get_postgres_transaction_id(
+        self,
+        conn: Any,
+        initial_conn_status: int,
+        alias: str,
+    ) -> str | None:
+        """
+        PostgreSQL does not expose any sort of transaction ID, so it is necessary to
+        generate synthetic transaction IDs here. If the connection was not in a
+        transaction when the query started, and was after the query finished, a new
+        transaction definitely started, so get a new transaction ID from
+        logger.new_transaction_id(). If the query was in a transaction both before and
+        after executing, make the assumption that it is the same transaction and get the
+        current transaction ID from logger.current_transaction_id().
+        There is an edge case where Django can start a transaction before the first
+        query executes, so in that case logger.current_transaction_id() will generate
+        a new transaction ID since one does not already exist.
+        """
+        final_conn_status = conn.status
+        if (
+            final_conn_status == STATUS_IN_TRANSACTION
+            and self._sql_collector is not None
+        ):
+            if initial_conn_status == STATUS_IN_TRANSACTION:
+                return self._sql_collector.current_transaction_id(alias)
+            else:
+                return self._sql_collector.new_transaction_id(alias)
+        return None
+
     def record(
         self,
         method: Callable[[CursorWrapper, str, Any], Any],
         cursor_self: CursorWrapper,
         sql: str,
-        params: "ExecuteParametersOrSequence",
+        params: ExecuteParametersOrSequence,
+        many: bool = False,
     ) -> Any:  # sourcery skip: remove-unnecessary-cast
 
         # If we're not tracking SQL, just call the original method
         if self._sql_collector is None:
             return method(cursor_self, sql, params)
 
-        if self._database_wrapper is None or self._database_cursor is None:
+        if self._database_wrapper is None:
             raise RuntimeError("SQLTracker not correctly initialized")
 
         alias = self._database_wrapper.alias
@@ -169,9 +243,7 @@ class SQLTracker(metaclass=SQLTrackerMeta):
                 alias=alias,
                 sql=sql,
                 duration=duration,
-                raw_sql=self._database_wrapper.ops.last_executed_query(
-                    self._database_cursor, sql, self._quote_params(params)
-                ),
+                raw_sql=self._get_raw_sql(cursor_self, sql, params, many, vendor),
                 params=_params,
                 raw_params=params,
                 stacktrace=get_stack_trace(skip=2),
@@ -182,36 +254,13 @@ class SQLTracker(metaclass=SQLTrackerMeta):
             )
 
             if vendor == "postgresql":
-                # If an erroneous query was ran on the connection, it might
-                # be in a state where checking isolation_level raises an
-                # exception.
-                try:
-                    iso_level = conn.isolation_level
-                except conn.InternalError:
-                    iso_level = "unknown"
-                # PostgreSQL does not expose any sort of transaction ID, so it is
-                # necessary to generate synthetic transaction IDs here.  If the
-                # connection was not in a transaction when the query started, and was
-                # after the query finished, a new transaction definitely started, so get
-                # a new transaction ID from logger.new_transaction_id().  If the query
-                # was in a transaction both before and after executing, make the
-                # assumption that it is the same transaction and get the current
-                # transaction ID from logger.current_transaction_id().  There is an edge
-                # case where Django can start a transaction before the first query
-                # executes, so in that case logger.current_transaction_id() will
-                # generate a new transaction ID since one does not already exist.
-                final_conn_status = conn.status
-                if final_conn_status == STATUS_IN_TRANSACTION:
-                    if initial_conn_status == STATUS_IN_TRANSACTION:
-                        trans_id = self._sql_collector.current_transaction_id(alias)
-                    else:
-                        trans_id = self._sql_collector.new_transaction_id(alias)
-                else:
-                    trans_id = None
-
-                sql_query_info.trans_id = trans_id
+                sql_query_info.trans_id = self._get_postgres_transaction_id(
+                    conn=conn,
+                    initial_conn_status=initial_conn_status,
+                    alias=alias,
+                )
                 sql_query_info.trans_status = conn.get_transaction_status()
-                sql_query_info.iso_level = iso_level
+                sql_query_info.iso_level = self._get_postgres_isolation_level(conn)
 
             self._sql_collector.record(sql_query_info)
 
