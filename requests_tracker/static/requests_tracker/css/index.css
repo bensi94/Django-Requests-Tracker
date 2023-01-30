@@ -56,16 +56,15 @@
   animation-iteration-count: infinite;
   animation-timing-function: linear;
 }
-.request-list__item:first-child {
+.request-list > div:first-child > .request-list__item {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
-.request-list__item:last-child {
-  border-width: 1px;
+.request-list > div:last-child > .request-list__item {
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
 }
-.request-list__item:hover {
+.request-list > div:last-child:hover {
   background-color: #1c1c1c;
 }
 
