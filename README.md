@@ -4,6 +4,62 @@
 
 A convenient Django development tool based on the great [`Django Debug Toolbar`](https://github.com/jazzband/django-debug-toolbar) but aimed towards rest API development. It collects and displays information on requests, responses, SQL queries, headers, Django settings and more.
 
+## Table of contents
+1. [Features](#features)  
+    1. [Requests list](#requests-list)
+    2. [Request details](#request-details)
+2. [The example Project](#the-example-project)
+3. [Installation](#installation) 
+    1. [Install the package](#install-the-package)
+    2. [Configure project settings](#configure-project-settings)
+    3. [Configure URLs](#configure-urls)
+    4. [Optional: Configure static content for WSGI and ASGI servers, e.g. Uvicorn for async Django](#configure-static-content)
+
+## Features
+
+### Requests list
+
+Django Requests Tracker registers every request sent to your Django application and displays them in a tidy list. Each element in the list contains information about the request's HTTP method, path, Django view, status code, database information and query count and execution time and duration.  
+  
+The requests list can be:
+* Searched by *path*, *Django view*, *sql* and *headers*. The search is quite simple and a request is only filtered from the list if the search term does not exist in any of theses elements.
+* Ordered in ascending and descending order by *time*, *duration*, *Django view*, *query count*, *similar query count* and *duplicate query count*.
+* Auto-refreshed so that new requests will automatically show up in the list.
+* Manually refreshed.
+* Cleared.
+
+#### The requests list in action 🎥
+
+![requests-list](https://user-images.githubusercontent.com/20007971/215617783-5511c6cd-0e99-4d0d-8260-e269b7977c87.gif)
+
+### Request details
+
+Each list element can be clicked where further information collected about the request such as SQL queries and headers can be found.
+
+#### SQL queries
+
+In request details, every SQL query executed in the context of the Django request should be shown, along with the execution time and a timeline bar that shows how big a chunk of the total time belongs to the given query. A stacktrace is shown for each query that helps with finding the origin of it.
+
+Some queries are labelled with a tag `X similar queries` or `X duplicate queries` this can often indicate a problem and can be very handy when debugging or in development.
+
+* `Similar Queries` means that the same query is executed more than once but with different parameters. This can for example happen when iterating over a list of IDs and fetching one item by ID at a time.
+* `Duplicate Queries` means that the exact same query with the same parameters is executed more than once. This can for example happen when iterating over a list child items and fetching same parent multiple times. Also known as an N-plus-1 query which is quite common problem with ORMs.
+
+#### The request details view in action 🎥
+![request-details](https://user-images.githubusercontent.com/20007971/215625549-50a0e1e1-f5f2-47c1-a36e-bb5a7cb9fd75.gif)
+
+
+### Django Settings
+
+Django settings very often contain some logic, and usage of environment variables and can even be spread out over multiple files. So it can be very beneficial to be able to see the current computed settings being used in the running process. Django Requests Tracker offers a simple way to view this. The view can be accessed by clicking on `Django settings` in the right corner of the requests tracker view.
+
+All information determined to be sensitive, such as keys and passwords, are masked in the displayed settings.
+
+<img width="1470" alt="Screenshot 2023-01-31 at 00 24 32" src="https://user-images.githubusercontent.com/20007971/215627287-4d62cc7d-1679-4fee-ad20-c52b59dccf34.png">
+
+## The Example Project
+
+This repository includes an [example project](example_project) to try out the package and see how it works. It can also be a great reference when adding the package to your project. To try it out, clone this project and follow the instructions on the [example project README](example_project/README.md)
 
 ## Installation
 
@@ -72,7 +128,7 @@ if settings.DEBUG:
 🚨️&nbsp; Again it's recommended to only add the URLs in DEBUG mode.
 
 
-### Optional: Configure static content for WSGI and ASGI servers, e.g. Uvicorn for async Django
+### Optional: Configure static content for WSGI and ASGI servers, e.g. Uvicorn for async Django <a name="configure-static-content"></a>
 
 #### Add static root to settings
 ```python
