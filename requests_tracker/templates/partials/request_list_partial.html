@@ -42,8 +42,8 @@
                         <option {% if requests_sorter == "name" %}selected{%  endif %} value="name">Name</option>
                         <option {% if requests_sorter == "view" %}selected{%  endif %} value="view">Django View</option>
                         <option {% if requests_sorter == "query_count" %}selected{%  endif %} value="query_count">Query count</option>
+                        <option {% if requests_sorter == "similar_query_count" %}selected{%  endif %} value="similar_query_count">Similar query count</option>
                         <option {% if requests_sorter == "duplicate_query_count" %}selected{%  endif %} value="duplicate_query_count">Duplicate query count</option>
-                        <option {% if requests_sorter == "similar_query_count" %}selected{%  endif %} value="similar_query_count">Duplicate query count</option>
                     </select>
                 </div>
                 <div class="icon ml-2 sort-direction-icon has-fg-color is-clickable">
