@@ -1,14 +1,42 @@
 [tool.poetry]
-name = "requests_tracker"
+name = "requests-tracker"
 version = "0.1.0"
-description = ""
-authors = ["Benedikt Óskarsson"]
+description = "The Django Requests Tracker is designed for local Django development, particularly for Rest API development. It provides various debugging information, such as SQL queries, headers, and status codes."
+license = "MIT"
+authors = ["Benedikt Óskarsson <bensi94@hotmail.com>"]
 readme = "README.md"
+repository = "https://github.com/bensi94/Django-Requests-Tracker"
+documentation = "https://github.com/bensi94/Django-Requests-Tracker/blob/main/README.md"
+keywords = ["django", "python", "sql", "middlware", "api", "rest", "debug", "htmx", "django-rest-framework", "django-ninja", "requests-tracker", "django-requests-tracker", "development"]
+classifiers = [
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development",
+    "Typing :: Typed",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "License :: OSI Approved :: MIT License",
+]
+packages = [
+    { include = "requests_tracker" },
+]
+
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
 django = ">=3.2"
-sqlparse = "^0.4.3"
+sqlparse = ">=0.4.3"
 
 
 [tool.poetry.group.dev.dependencies]

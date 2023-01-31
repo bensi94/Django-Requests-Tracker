@@ -5,11 +5,11 @@
 A convenient Django development tool based on the great [`Django Debug Toolbar`](https://github.com/jazzband/django-debug-toolbar) but aimed towards rest API development. It collects and displays information on requests, responses, SQL queries, headers, Django settings and more.
 
 ## Table of contents
-1. [Features](#features)  
+1. [Features](#features)
     1. [Requests list](#requests-list)
     2. [Request details](#request-details)
 2. [The example Project](#the-example-project)
-3. [Installation](#installation) 
+3. [Installation](#installation)
     1. [Install the package](#install-the-package)
     2. [Configure project settings](#configure-project-settings)
     3. [Configure URLs](#configure-urls)
@@ -19,8 +19,8 @@ A convenient Django development tool based on the great [`Django Debug Toolbar`]
 
 ### Requests list
 
-Django Requests Tracker registers every request sent to your Django application and displays them in a tidy list. Each element in the list contains information about the request's HTTP method, path, Django view, status code, database information and query count and execution time and duration.  
-  
+Django Requests Tracker registers every request sent to your Django application and displays them in a tidy list. Each element in the list contains information about the request's HTTP method, path, Django view, status code, database information and query count and execution time and duration.
+
 The requests list can be:
 * Searched by *path*, *Django view*, *sql* and *headers*. The search is quite simple and a request is only filtered from the list if the search term does not exist in any of theses elements.
 * Ordered in ascending and descending order by *time*, *duration*, *Django view*, *query count*, *similar query count* and *duplicate query count*.
@@ -68,7 +68,7 @@ If any of the following steps are unclear, check out the [Example Project](examp
 ### Install the package
 
 ```bash
-pip install django-requests-tracker
+pip install requests-tracker
 ```
 
 or install with you're chosen package tool, e.g.
