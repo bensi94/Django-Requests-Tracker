@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "requests-tracker"
-version = "0.1.0"
+version = "0.1.1"
 description = "The Django Requests Tracker is designed for local Django development, particularly for Rest API development. It provides various debugging information, such as SQL queries, headers, and status codes."
 license = "MIT"
 authors = ["Benedikt Óskarsson <bensi94@hotmail.com>"]
