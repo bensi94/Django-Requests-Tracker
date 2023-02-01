@@ -68,12 +68,12 @@ class SQLTrackerMeta(type):
 class SQLTracker(metaclass=SQLTrackerMeta):
     _old_sql_trackers: list["SQLTracker"]
     _sql_collector: SQLCollector | None
-    _database_wrapper: BaseDatabaseWrapper | None
+    database_wrapper: BaseDatabaseWrapper | None
 
     def __init__(self, sql_collector: SQLCollector | None = None) -> None:
         self._old_sql_trackers = []
         self._sql_collector = sql_collector
-        self._database_wrapper = None
+        self.database_wrapper = None
 
     def __enter__(self) -> "SQLTracker":
         self._old_sql_trackers.append(SQLTracker.current)
@@ -90,7 +90,7 @@ class SQLTracker(metaclass=SQLTrackerMeta):
         _local.set(old)
 
     def set_database_wrapper(self, database_wrapper: BaseDatabaseWrapper) -> None:
-        self._database_wrapper = database_wrapper
+        self.database_wrapper = database_wrapper
 
     @staticmethod
     def _quote_expr(element: Any) -> str:
@@ -130,13 +130,13 @@ class SQLTracker(metaclass=SQLTrackerMeta):
             for current_params in zip(*params):  # noqa: B905
                 final_params.extend(current_params)
 
-            return self._database_wrapper.ops.last_executed_query(  # type: ignore
+            return self.database_wrapper.ops.last_executed_query(  # type: ignore
                 cursor_self,
                 sql,
                 self._quote_params(final_params),
             )
 
-        return self._database_wrapper.ops.last_executed_query(  # type: ignore
+        return self.database_wrapper.ops.last_executed_query(  # type: ignore
             cursor_self,
             sql,
             self._quote_params(params),
@@ -214,15 +214,15 @@ class SQLTracker(metaclass=SQLTrackerMeta):
         if self._sql_collector is None:
             return method(cursor_self, sql, params)
 
-        if self._database_wrapper is None:
+        if self.database_wrapper is None:
             raise RuntimeError("SQLTracker not correctly initialized")
 
-        alias = self._database_wrapper.alias
-        vendor = self._database_wrapper.vendor
+        alias = self.database_wrapper.alias
+        vendor = self.database_wrapper.vendor
 
         if vendor == "postgresql":
             # The underlying DB connection (as opposed to Django's wrapper)
-            conn = self._database_wrapper.connection
+            conn = self.database_wrapper.connection
             initial_conn_status = conn.status
 
         start_time = time()

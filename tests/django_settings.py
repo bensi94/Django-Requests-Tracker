@@ -21,3 +21,6 @@ DEBUG = True
 INTERNAL_IPS = ["127.0.0.1"]
 
 SECRET_KEY = "secret"
+
+# Tests for sql tracking manually call necessary initialization, so this can be False
+REQUESTS_TRACKER_CONFIG = {"TRACK_SQL": False}

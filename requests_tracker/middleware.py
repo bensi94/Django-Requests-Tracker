@@ -2,7 +2,6 @@ import asyncio
 from typing import Any
 from uuid import UUID
 
-from django.conf import settings
 from django.http import HttpRequest
 from django.urls import Resolver404, resolve
 from django.utils.decorators import sync_and_async_middleware
@@ -10,7 +9,6 @@ from django.utils.decorators import sync_and_async_middleware
 from requests_tracker import APP_NAME
 from requests_tracker.main_request_collector import MainRequestCollector
 from requests_tracker.settings import debug_application
-from requests_tracker.sql.sql_hook import install_sql_hook
 from requests_tracker.sql.sql_tracker import SQLTracker
 
 
@@ -88,9 +86,6 @@ def requests_tracker_middleware(
     get_response: Any,
 ) -> Any:
     request_collectors: dict[UUID, MainRequestCollector] = {}
-
-    if settings.DEBUG:
-        install_sql_hook()
 
     if asyncio.iscoroutinefunction(get_response):
 

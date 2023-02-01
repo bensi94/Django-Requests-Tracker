@@ -22,20 +22,21 @@ CONFIG_DEFAULTS = {
         "django.utils.functional",
     ),
     "SQL_WARNING_THRESHOLD": 500,  # milliseconds
-    "requests_tracker_APPLICATION": True,
+    "REQUESTS_TRACKER_CONFIG": True,
+    "TRACK_SQL": True,
 }
 
 
 @lru_cache()
 def get_config() -> dict[str, Any]:
-    user_config = getattr(settings, "requests_tracker_APPLICATION", {})
+    user_config = getattr(settings, "REQUESTS_TRACKER_CONFIG", {})
     config = CONFIG_DEFAULTS.copy()
     config.update(user_config)
     return config
 
 
 def debug_application(request: HttpRequest) -> bool:
-    requests_tracker_app = get_config()["requests_tracker_APPLICATION"]
+    requests_tracker_app = get_config()["REQUESTS_TRACKER_CONFIG"]
     return (
         requests_tracker_app
         and settings.DEBUG

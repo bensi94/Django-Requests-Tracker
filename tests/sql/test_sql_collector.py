@@ -83,11 +83,6 @@ def test_record__executemany(sql_collector: SQLCollector) -> None:
 
 
 @pytest.mark.django_db
-def test_record__callproc(sql_collector: SQLCollector) -> None:
-    pass
-
-
-@pytest.mark.django_db
 def test_generate_statistics__duplicate_queries(sql_collector: SQLCollector) -> None:
     """Tests that generate_statistics counts duplicate queries correctly"""
     query_result_1 = User.objects.filter(username="test").exists()
