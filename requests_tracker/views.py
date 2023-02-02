@@ -28,23 +28,22 @@ def sort_requests(
         item: tuple[UUID, MainRequestCollector]
     ) -> str | int | datetime | None:
         _, request = item
-        match requests_sorter:  # noqa: E999 (ruff does not recognise pattern matching)
-            case "time":
-                return request.start_time
-            case "duration":
-                return request.duration
-            case "name":
-                return str(request.request.path)
-            case "view":
-                return request.django_view
-            case "query_count":
-                return request.sql_collector.num_queries
-            case "duplicate_query_count":
-                return request.sql_collector.total_duplicate_queries
-            case "similar_query_count":
-                return request.sql_collector.total_similar_queries
-            case _:
-                return request.start_time
+        if requests_sorter == "time":
+            return request.start_time
+        elif requests_sorter == "duration":
+            return request.duration
+        elif requests_sorter == "name":
+            return str(request.request.path)
+        elif requests_sorter == "view":
+            return request.django_view
+        elif requests_sorter == "query_count":
+            return request.sql_collector.num_queries
+        elif requests_sorter == "duplicate_query_count":
+            return request.sql_collector.total_duplicate_queries
+        elif requests_sorter == "similar_query_count":
+            return request.sql_collector.total_similar_queries
+        else:
+            return request.start_time
 
     reverse = requests_direction != "ascending"
     return dict(

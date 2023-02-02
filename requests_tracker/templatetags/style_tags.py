@@ -12,19 +12,18 @@ register = template.Library()
 @stringfilter
 def method_bulma_color_class(method: str) -> str:
     """Takes in HTTP method and returns a bulma class for colorization"""
-    match method:  # noqa: E999 (ruff does not recognise pattern matching)
-        case "GET":
-            return "is-info"
-        case "POST":
-            return "is-success"
-        case "PUT":
-            return "is-warning"
-        case "PATCH":
-            return "is-warning is-light"
-        case "DELETE":
-            return "is-danger"
-        case _:
-            return ""
+    if method == "GET":
+        return "is-info"
+    elif method == "POST":
+        return "is-success"
+    elif method == "PUT":
+        return "is-warning"
+    elif method == "PATCH":
+        return "is-warning is-light"
+    elif method == "DELETE":
+        return "is-danger"
+    else:
+        return ""
 
 
 @register.filter("status_code_class")
