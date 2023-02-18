@@ -48,6 +48,9 @@ jobs:
     - name: Check with mypy
       run: poetry run mypy . --strict
 
+    - name: Test with tox
+      run: poetry run tox
+
     - name: Test with pytest
       run: |
         poetry run pytest . --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=./ | tee pytest-coverage.txt
