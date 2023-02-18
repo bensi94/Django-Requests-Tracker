@@ -5,7 +5,9 @@
 <a href="https://github.com/bensi94/Django-Requests-Tracker/actions/workflows/quality.yml?query=event%3Apush+branch%3Amain" target="_blank">
     <img src="https://github.com/bensi94/Django-Requests-Tracker/actions/workflows/quality.yml/badge.svg?event=push&branch=main" alt="Test & Quality">
 </a>
-<img src="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bensi94/0fbe0bd93d1307b7bb1096206b7817fa/raw/covbadge.json" alt="Coverage">
+<a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/bensi94/Django-Requests-Tracker" target="_blank">
+   <img src="https://coverage-badge.samuelcolvin.workers.dev/bensi94/Django-Requests-Tracker.svg" alt="Coverage">
+</a>
 <a href="https://pypi.org/project/requests-tracker/" target="_blank">
     <img src="https://img.shields.io/pypi/v/requests-tracker?color=blue" alt="Package version"/>
 </a>

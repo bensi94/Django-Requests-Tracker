@@ -52,6 +52,8 @@ jobs:
       run: |
         poetry run pytest . --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=./ | tee pytest-coverage.txt
         poetry run coverage html --title="Coverage for ${{ github.sha }}"
+        echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
+        echo "$(poetry run coverage report --format=markdown)" >> $GITHUB_STEP_SUMMARY
 
     - name: Store coverage files
       if: ${{ matrix.python-version }} == '3.11'
@@ -66,23 +68,3 @@ jobs:
       with:
         pytest-coverage-path: ./pytest-coverage.txt
         junitxml-path: ./pytest.xml
-
-    - name: Create coverage badge json
-      if: github.ref == 'refs/heads/main'
-      run: |
-        export COV_SCORE=$(awk '$1 == "TOTAL" {print $NF+0}' pytest-coverage.txt)
-        echo "total=$COV_SCORE" >> $GITHUB_ENV
-        echo "### Total coverage: ${TOTAL}%" >> $GITHUB_STEP_SUMMARY
-
-    - name: Update coverage badge
-      if: github.ref == 'refs/heads/main'
-      uses: schneegans/dynamic-badges-action@v1.6.0
-      with:
-        auth: ${{ secrets.GIST_TOKEN }}
-        gistID: 0fbe0bd93d1307b7bb1096206b7817fa
-        filename: covbadge.json
-        label: Coverage
-        message: ${{ env.total }}%
-        minColorRange: 50
-        maxColorRange: 90
-        valColorRange: ${{ env.total }}
