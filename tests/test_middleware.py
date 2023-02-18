@@ -8,9 +8,11 @@ from django.test import RequestFactory
 
 from requests_tracker.main_request_collector import MainRequestCollector
 from requests_tracker.middleware import (
+    is_ignored_request,
     is_requests_tracker_request,
     requests_tracker_middleware,
 )
+from requests_tracker.settings import get_config
 
 
 @pytest.fixture(autouse=True)
@@ -127,3 +129,28 @@ async def test_middleware_requests_tracker_clear_async(
     request_collectors = requests_tracker_request.request_collectors  # type: ignore
 
     assert request_collectors == {}
+
+
+@pytest.mark.parametrize(
+    "ignore_patterns, expected_result",
+    [
+        ((), False),
+        ((r"hello.*", ".*world"), False),
+        ((r".*some", ".*world"), True),
+        ((r".*hello", ".*random"), True),
+        ((r".*some", ".*random"), True),
+    ],
+)
+def test_is_ignored_request(
+    request_factory: RequestFactory,
+    settings: LazySettings,
+    ignore_patterns: tuple[str],
+    expected_result: bool,
+) -> None:
+    # Clear config cache to ensure settings are reloaded
+    get_config.cache_clear()
+    settings.REQUESTS_TRACKER_CONFIG[  # type: ignore
+        "IGNORE_PATHS_PATTERNS"
+    ] = ignore_patterns
+    request = request_factory.get("/some-random-path")
+    assert is_ignored_request(request) is expected_result

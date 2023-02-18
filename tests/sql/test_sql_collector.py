@@ -144,7 +144,7 @@ def test_generate_statistics__similar_queries_not_duplicates(
 def test_filtered_queries(
     sql_collector: SQLCollector,
     settings: LazySettings,
-    ignore_patterns: list[str],
+    ignore_patterns: tuple[str],
     expected_number_of_queries: int,
 ) -> None:
     # Clear config cache to ensure settings are reloaded
