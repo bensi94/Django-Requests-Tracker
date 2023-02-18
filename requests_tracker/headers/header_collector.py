@@ -1,4 +1,5 @@
 from itertools import chain
+from typing import Dict
 
 from django.http import HttpRequest, HttpResponse
 
@@ -10,9 +11,9 @@ class HeaderCollector(Collector):
     Collects the request's HTTP headers.
     """
 
-    request_headers: dict[str, str]
-    response_headers: dict[str, str]
-    environ: dict[str, str]
+    request_headers: Dict[str, str]
+    response_headers: Dict[str, str]
+    environ: Dict[str, str]
 
     # List of environment variables we want to display
     ENVIRON_FILTER = {

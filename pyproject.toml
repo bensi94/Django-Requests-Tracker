@@ -56,6 +56,7 @@ djhtml = "^1.5.2"
 freezegun = "^1.2.2"
 types-freezegun = "^1.1.10"
 pytest-asyncio = "^0.20.3"
+psycopg2-binary = "^2.9.5"
 
 
 [tool.pytest.ini_options]

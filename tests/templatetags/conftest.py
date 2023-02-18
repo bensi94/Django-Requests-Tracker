@@ -1,4 +1,4 @@
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Dict, Optional
 
 import pytest
 from django.template import Context, Template
@@ -18,7 +18,7 @@ TemplateRenderer = Callable[
 def template_renderer() -> TemplateRenderer:
     def inner_renderer(
         template_str: str,
-        context: Optional[dict[str, Any]] = None,
+        context: Optional[Dict[str, Any]] = None,
         strip: bool = False,
     ) -> str:
         result = Template(template_str).render(Context(context))

@@ -1,3 +1,5 @@
+from typing import List
+
 import pytest
 
 from requests_tracker.sql.dataclasses import SQLQueryInfo
@@ -131,7 +133,7 @@ SQL_QUERIES = [
     ],
 )
 def test_timeline_bar_styles(
-    queries: list[SQLQueryInfo],
+    queries: List[SQLQueryInfo],
     current_index: int,
     expected_styles: str,
     template_renderer: TemplateRenderer,

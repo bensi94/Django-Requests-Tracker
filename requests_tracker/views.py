@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Union
+from typing import Dict, Optional, Tuple, Union
 from uuid import UUID
 
 from django.conf import settings
@@ -9,7 +9,7 @@ from django.views.debug import get_default_exception_reporter_filter
 from requests_tracker.main_request_collector import MainRequestCollector
 from requests_tracker.middleware import RequestWithCollectors
 
-RequestsType = dict[UUID, MainRequestCollector]
+RequestsType = Dict[UUID, MainRequestCollector]
 
 
 def is_htmx_request(request: RequestWithCollectors) -> bool:
@@ -26,7 +26,7 @@ def sort_requests(
     requests_direction: str,
 ) -> RequestsType:
     def sort_func(
-        item: tuple[UUID, MainRequestCollector]
+        item: Tuple[UUID, MainRequestCollector]
     ) -> Optional[Union[str, int, datetime]]:
         _, request = item
         if requests_sorter == "time":

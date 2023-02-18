@@ -1,17 +1,18 @@
 from functools import lru_cache
-from typing import Generator
+from typing import TYPE_CHECKING, Generator, Tuple
 
 import sqlparse  # type: ignore
 from django.utils.html import escape
 
-SQLParseFilterGenerator = Generator[tuple[sqlparse.tokens.Token, str], None, None]
+if TYPE_CHECKING:
+    SQLParseFilterGenerator = Generator[Tuple[sqlparse.tokens.Token, str], None, None]
 
 
 class BoldKeywordFilter:
     """sqlparse filter to bold SQ = L keywords"""
 
     @staticmethod
-    def process(stream: SQLParseFilterGenerator) -> SQLParseFilterGenerator:
+    def process(stream: "SQLParseFilterGenerator") -> "SQLParseFilterGenerator":
         """Process the token stream"""
         for token_type, value in stream:
             is_keyword = token_type in sqlparse.tokens.Keyword

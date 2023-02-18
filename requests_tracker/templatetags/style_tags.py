@@ -1,4 +1,5 @@
 import colorsys
+from typing import List
 
 from django import template
 from django.template.defaultfilters import stringfilter
@@ -69,7 +70,7 @@ def contrast_color_from_number(color_number: int) -> str:
 
 @register.simple_tag
 def timeline_bar_styles(
-    queries: list[SQLQueryInfo],
+    queries: List[SQLQueryInfo],
     total_sql_time: float,
     current_index: int,
 ) -> str:

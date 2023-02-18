@@ -6,7 +6,18 @@ import types
 from contextvars import ContextVar
 from decimal import Decimal
 from time import time
-from typing import TYPE_CHECKING, Any, Callable, Mapping, Optional, Sequence, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 from uuid import UUID
 
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -28,7 +39,7 @@ except ImportError:
 if TYPE_CHECKING:
 
     DecodeReturn = Union[
-        list[Union["DecodeReturn", str]], dict[str, Union["DecodeReturn", str]], str
+        List[Union["DecodeReturn", str]], Dict[str, Union["DecodeReturn", str]], str
     ]
 
 SQLType = Union[
@@ -42,14 +53,14 @@ SQLType = Union[
     datetime.date,
     datetime.datetime,
     UUID,
-    tuple[Any, ...],
-    list[Any],
+    Tuple[Any, ...],
+    List[Any],
 ]
 
 ExecuteParameters = Optional[Union[Sequence[SQLType], Mapping[str, SQLType]]]
 ExecuteParametersOrSequence = Union[ExecuteParameters, Sequence[ExecuteParameters]]
 
-QuoteParamsReturn = Optional[Union[dict[str, str], list[str]]]
+QuoteParamsReturn = Optional[Union[Dict[str, str], List[str]]]
 
 _local: ContextVar["SQLTracker"] = ContextVar("current_sql_tracker")
 
@@ -68,7 +79,7 @@ class SQLTrackerMeta(type):
 
 
 class SQLTracker(metaclass=SQLTrackerMeta):
-    _old_sql_trackers: list["SQLTracker"]
+    _old_sql_trackers: List["SQLTracker"]
     _sql_collector: Optional[SQLCollector]
     database_wrapper: Optional[BaseDatabaseWrapper]
 
@@ -124,7 +135,7 @@ class SQLTracker(metaclass=SQLTrackerMeta):
             and isinstance(params, (tuple, list))
             and isinstance(params[0], (tuple, list))
         ):
-            final_params: list[str] = []
+            final_params: List[str] = []
             part_to_replace = re.search(r"(\(\s*%s.*\))", sql)[1]  # type: ignore
             sql = sql.replace(
                 part_to_replace, ", ".join(part_to_replace for _ in params)

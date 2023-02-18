@@ -1,21 +1,21 @@
 import re
 import uuid
 from collections import defaultdict
-from typing import Optional
+from typing import Dict, List, Optional, Tuple
 
 from requests_tracker.base_collector import Collector
 from requests_tracker.settings import get_config
 from requests_tracker.sql.dataclasses import PerDatabaseInfo, SQLQueryInfo
 
-SimilarQueryGroupsType = dict[tuple[str, str], list[SQLQueryInfo]]
-DuplicateQueryGroupsType = dict[tuple[str, tuple[str, str]], list[SQLQueryInfo]]
+SimilarQueryGroupsType = Dict[Tuple[str, str], List[SQLQueryInfo]]
+DuplicateQueryGroupsType = Dict[Tuple[str, Tuple[str, str]], List[SQLQueryInfo]]
 
 
 class SQLCollector(Collector):
-    unfiltered_queries: list[SQLQueryInfo]
-    databases: dict[str, PerDatabaseInfo]
+    unfiltered_queries: List[SQLQueryInfo]
+    databases: Dict[str, PerDatabaseInfo]
     sql_time: float
-    transaction_ids: dict[str, Optional[str]]
+    transaction_ids: Dict[str, Optional[str]]
 
     def __init__(self) -> None:
         self.databases = {}
@@ -25,7 +25,7 @@ class SQLCollector(Collector):
         self.transaction_ids = {}
 
     @property
-    def queries(self) -> list[SQLQueryInfo]:
+    def queries(self) -> List[SQLQueryInfo]:
         config = get_config()
         if ignore_patterns := config.get("IGNORE_SQL_PATTERNS"):
             return [
@@ -97,7 +97,7 @@ class SQLCollector(Collector):
                 )
             ].append(query)
 
-        similar_counts: dict[str, int] = defaultdict(int)
+        similar_counts: Dict[str, int] = defaultdict(int)
         for (alias, _), query_group in similar_query_groups.items():
             count = len(query_group)
 
@@ -106,7 +106,7 @@ class SQLCollector(Collector):
                     query.similar_count = count
                 similar_counts[alias] += count
 
-        duplicate_counts: dict[str, int] = defaultdict(int)
+        duplicate_counts: Dict[str, int] = defaultdict(int)
         for (alias, _), query_group in duplicate_query_groups.items():
             count = len(query_group)
 

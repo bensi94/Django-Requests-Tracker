@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Dict, List
 from uuid import UUID
 
 import pytest
@@ -31,7 +32,7 @@ from requests_tracker.views import (
 )
 def test_is_htmx_request(
     request_factory: RequestFactory,
-    custom_headers: dict[str, str],
+    custom_headers: Dict[str, str],
     expected_result: bool,
 ) -> None:
     request: RequestWithCollectors = request_factory.get(
@@ -51,7 +52,7 @@ def test_is_htmx_request(
 )
 def test_is_htmx_search_or_sort_request(
     request_factory: RequestFactory,
-    custom_headers: dict[str, str],
+    custom_headers: Dict[str, str],
     expected_result: bool,
 ) -> None:
     request: RequestWithCollectors = request_factory.get(
@@ -151,7 +152,7 @@ def test_is_htmx_search_or_sort_request(
 def test_sort_requests(
     requests_sorter: str,
     requests_direction: str,
-    expected_order: list[UUID],
+    expected_order: List[UUID],
     request_factory: RequestFactory,
 ) -> None:
     fake_query = SQLQueryInfo(
@@ -241,7 +242,7 @@ def test_sort_requests(
     ],
 )
 def test_index(
-    custom_headers: dict[str, str],
+    custom_headers: Dict[str, str],
     expected_template_name: str,
     request_factory: RequestFactory,
 ) -> None:
@@ -280,7 +281,7 @@ def test_index(
     ],
 )
 def test_clear_request_list(
-    custom_headers: dict[str, str],
+    custom_headers: Dict[str, str],
     expected_template_name: str,
     request_factory: RequestFactory,
 ) -> None:
@@ -338,7 +339,7 @@ def test_single_request_item(request_factory: RequestFactory) -> None:
     ],
 )
 def test_request_details(
-    custom_headers: dict[str, str],
+    custom_headers: Dict[str, str],
     expected_template_name: str,
     request_factory: RequestFactory,
 ) -> None:

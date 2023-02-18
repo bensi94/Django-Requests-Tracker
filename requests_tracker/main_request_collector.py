@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 from uuid import UUID, uuid4
 
 from django.http import HttpRequest, HttpResponse
@@ -59,8 +59,8 @@ class MainRequestCollector:
     def set_end_time(self) -> None:
         self.end_time = datetime.now()
 
-    def get_collectors(self) -> dict[str, Collector]:
-        collectors: dict[str, Collector] = {}
+    def get_collectors(self) -> Dict[str, Collector]:
+        collectors: Dict[str, Collector] = {}
 
         for attribute_name, attribute_value in self.__dict__.items():
             if isinstance(attribute_value, Collector):
@@ -69,7 +69,7 @@ class MainRequestCollector:
 
         return collectors
 
-    def get_as_context(self) -> dict[str, Any]:
+    def get_as_context(self) -> Dict[str, Any]:
         return {
             "request": self.request,
             "request_id": self.request_id,
