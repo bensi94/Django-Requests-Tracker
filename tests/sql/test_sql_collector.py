@@ -1,9 +1,9 @@
 from typing import Generator
 
 import pytest
+from django.conf import LazySettings
 from django.contrib.auth.models import User
 from django.db import connections
-from pytest_django.fixtures import SettingsWrapper  # type: ignore
 
 from requests_tracker.settings import get_config
 from requests_tracker.sql.sql_collector import SQLCollector
@@ -143,13 +143,15 @@ def test_generate_statistics__similar_queries_not_duplicates(
 @pytest.mark.django_db
 def test_filtered_queries(
     sql_collector: SQLCollector,
-    settings: SettingsWrapper,
+    settings: LazySettings,
     ignore_patterns: list[str],
     expected_number_of_queries: int,
 ) -> None:
     # Clear config cache to ensure settings are reloaded
     get_config.cache_clear()
-    settings.REQUESTS_TRACKER_CONFIG["IGNORE_SQL_PATTERNS"] = ignore_patterns
+    settings.REQUESTS_TRACKER_CONFIG[  # type: ignore
+        "IGNORE_SQL_PATTERNS"
+    ] = ignore_patterns
     User.objects.filter(username="test").exists()
     User.objects.filter(username="another_username").exists()
 
