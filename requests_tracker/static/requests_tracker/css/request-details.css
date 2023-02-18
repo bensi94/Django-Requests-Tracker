@@ -40,7 +40,7 @@
 }
 .database-query-body__sql {
   max-height: 2000px;
-  overflow: hidden;
+  overflow: scroll;
 }
 .database-query-body__sql__collapsed-section.database-query-body__sql__hidden {
   display: none;
