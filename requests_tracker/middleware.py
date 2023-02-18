@@ -1,6 +1,6 @@
 import asyncio
 import re
-from typing import Any
+from typing import Any, Dict
 from uuid import UUID
 
 from django.http import HttpRequest
@@ -14,7 +14,7 @@ from requests_tracker.sql.sql_tracker import SQLTracker
 
 
 class RequestWithCollectors(HttpRequest):
-    request_collectors: dict[UUID, MainRequestCollector]
+    request_collectors: Dict[UUID, MainRequestCollector]
 
 
 def is_requests_tracker_request(request: HttpRequest) -> bool:
@@ -42,7 +42,7 @@ def is_ignored_request(request: HttpRequest) -> bool:
 async def middleware_async(
     request: RequestWithCollectors,
     get_response: Any,
-    request_collectors: dict[UUID, MainRequestCollector],
+    request_collectors: Dict[UUID, MainRequestCollector],
 ) -> Any:
     if not debug_application(request) or is_ignored_request(request):
         return await get_response(request)
@@ -69,7 +69,7 @@ async def middleware_async(
 def middleware_sync(
     request: RequestWithCollectors,
     get_response: Any,
-    request_collectors: dict[UUID, MainRequestCollector],
+    request_collectors: Dict[UUID, MainRequestCollector],
 ) -> Any:
     if not debug_application(request) or is_ignored_request(request):
         return get_response(request)
@@ -97,7 +97,7 @@ def middleware_sync(
 def requests_tracker_middleware(
     get_response: Any,
 ) -> Any:
-    request_collectors: dict[UUID, MainRequestCollector] = {}
+    request_collectors: Dict[UUID, MainRequestCollector] = {}
 
     if asyncio.iscoroutinefunction(get_response):
 

@@ -6,7 +6,18 @@ import types
 from contextvars import ContextVar
 from decimal import Decimal
 from time import time
-from typing import TYPE_CHECKING, Any, Callable, Mapping, Sequence
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 from uuid import UUID
 
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -27,27 +38,29 @@ except ImportError:
 
 if TYPE_CHECKING:
 
-    DecodeReturn = list["DecodeReturn" | str] | dict[str, "DecodeReturn" | str] | str
+    DecodeReturn = Union[
+        List[Union["DecodeReturn", str]], Dict[str, Union["DecodeReturn", str]], str
+    ]
 
-SQLType = (
-    None
-    | bool
-    | int
-    | float
-    | Decimal
-    | str
-    | bytes
-    | datetime.date
-    | datetime.datetime
-    | UUID
-    | tuple[Any, ...]
-    | list[Any]
-)
+SQLType = Union[
+    None,
+    bool,
+    int,
+    float,
+    Decimal,
+    str,
+    bytes,
+    datetime.date,
+    datetime.datetime,
+    UUID,
+    Tuple[Any, ...],
+    List[Any],
+]
 
-ExecuteParameters = Sequence[SQLType] | Mapping[str, SQLType] | None
-ExecuteParametersOrSequence = ExecuteParameters | Sequence[ExecuteParameters]
+ExecuteParameters = Optional[Union[Sequence[SQLType], Mapping[str, SQLType]]]
+ExecuteParametersOrSequence = Union[ExecuteParameters, Sequence[ExecuteParameters]]
 
-QuoteParamsReturn = dict[str, str] | list[str] | None
+QuoteParamsReturn = Optional[Union[Dict[str, str], List[str]]]
 
 _local: ContextVar["SQLTracker"] = ContextVar("current_sql_tracker")
 
@@ -66,11 +79,11 @@ class SQLTrackerMeta(type):
 
 
 class SQLTracker(metaclass=SQLTrackerMeta):
-    _old_sql_trackers: list["SQLTracker"]
-    _sql_collector: SQLCollector | None
-    database_wrapper: BaseDatabaseWrapper | None
+    _old_sql_trackers: List["SQLTracker"]
+    _sql_collector: Optional[SQLCollector]
+    database_wrapper: Optional[BaseDatabaseWrapper]
 
-    def __init__(self, sql_collector: SQLCollector | None = None) -> None:
+    def __init__(self, sql_collector: Optional[SQLCollector] = None) -> None:
         self._old_sql_trackers = []
         self._sql_collector = sql_collector
         self.database_wrapper = None
@@ -82,9 +95,9 @@ class SQLTracker(metaclass=SQLTrackerMeta):
 
     def __exit__(
         self,
-        exc_type: type | None,
-        exc_value: BaseException | None,
-        tb: types.TracebackType | None,
+        exc_type: Optional[type],
+        exc_value: Optional[BaseException],
+        tb: Optional[types.TracebackType],
     ) -> None:
         old = self._old_sql_trackers.pop()
         _local.set(old)
@@ -122,7 +135,7 @@ class SQLTracker(metaclass=SQLTrackerMeta):
             and isinstance(params, (tuple, list))
             and isinstance(params[0], (tuple, list))
         ):
-            final_params: list[str] = []
+            final_params: List[str] = []
             part_to_replace = re.search(r"(\(\s*%s.*\))", sql)[1]  # type: ignore
             sql = sql.replace(
                 part_to_replace, ", ".join(part_to_replace for _ in params)
@@ -177,7 +190,7 @@ class SQLTracker(metaclass=SQLTrackerMeta):
         conn: Any,
         initial_conn_status: int,
         alias: str,
-    ) -> str | None:
+    ) -> Optional[str]:
         """
         PostgreSQL does not expose any sort of transaction ID, so it is necessary to
         generate synthetic transaction IDs here. If the connection was not in a

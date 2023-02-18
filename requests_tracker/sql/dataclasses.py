@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Union
 
 if TYPE_CHECKING:
 
@@ -29,8 +29,8 @@ class SQLQueryInfo:
     stop_time: float
     is_slow: bool
     is_select: bool
-    trans_id: str | None = None
-    iso_level: int | str | None = None
-    trans_status: int | None = None
+    trans_id: Optional[str] = None
+    iso_level: Optional[Union[int, str]] = None
+    trans_status: Optional[int] = None
     similar_count: int = 0
     duplicate_count: int = 0

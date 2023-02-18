@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Dict, Optional
 from uuid import UUID, uuid4
 
 from django.http import HttpRequest, HttpResponse
@@ -15,8 +15,8 @@ class MainRequestCollector:
     request: HttpRequest
     django_view: str
     start_time: datetime
-    end_time: datetime | None
-    response: HttpResponse | None
+    end_time: Optional[datetime]
+    response: Optional[HttpResponse]
 
     sql_collector: SQLCollector
     header_collector: HeaderCollector
@@ -44,7 +44,7 @@ class MainRequestCollector:
         self.header_collector.process_request(self.request, self.response)
 
     @property
-    def duration(self) -> int | None:
+    def duration(self) -> Optional[int]:
         """duration in milliseconds"""
         return (
             int((self.end_time - self.start_time).total_seconds() * 1000)
@@ -59,8 +59,8 @@ class MainRequestCollector:
     def set_end_time(self) -> None:
         self.end_time = datetime.now()
 
-    def get_collectors(self) -> dict[str, Collector]:
-        collectors: dict[str, Collector] = {}
+    def get_collectors(self) -> Dict[str, Collector]:
+        collectors: Dict[str, Collector] = {}
 
         for attribute_name, attribute_value in self.__dict__.items():
             if isinstance(attribute_value, Collector):
@@ -69,7 +69,7 @@ class MainRequestCollector:
 
         return collectors
 
-    def get_as_context(self) -> dict[str, Any]:
+    def get_as_context(self) -> Dict[str, Any]:
         return {
             "request": self.request,
             "request_id": self.request_id,

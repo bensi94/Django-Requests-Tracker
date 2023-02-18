@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, Dict
 
 import pytest
 
@@ -53,7 +53,7 @@ def test_split_and_last_default(template_renderer: TemplateRenderer) -> None:
     ],
 )
 def test_dict_key_index(
-    input_dict: dict[str, str],
+    input_dict: Dict[str, str],
     key: str,
     expected_index: int,
     template_renderer: TemplateRenderer,

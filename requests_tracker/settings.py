@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Any
+from typing import Any, Dict
 
 from django.conf import settings
 from django.http import HttpRequest
@@ -30,7 +30,7 @@ CONFIG_DEFAULTS = {
 
 
 @lru_cache()
-def get_config() -> dict[str, Any]:
+def get_config() -> Dict[str, Any]:
     user_config = getattr(settings, "REQUESTS_TRACKER_CONFIG", {})
     config = CONFIG_DEFAULTS.copy()
     config.update(user_config)

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Dict, Optional, Tuple, Union
 from uuid import UUID
 
 from django.conf import settings
@@ -8,7 +9,7 @@ from django.views.debug import get_default_exception_reporter_filter
 from requests_tracker.main_request_collector import MainRequestCollector
 from requests_tracker.middleware import RequestWithCollectors
 
-RequestsType = dict[UUID, MainRequestCollector]
+RequestsType = Dict[UUID, MainRequestCollector]
 
 
 def is_htmx_request(request: RequestWithCollectors) -> bool:
@@ -25,26 +26,25 @@ def sort_requests(
     requests_direction: str,
 ) -> RequestsType:
     def sort_func(
-        item: tuple[UUID, MainRequestCollector]
-    ) -> str | int | datetime | None:
+        item: Tuple[UUID, MainRequestCollector]
+    ) -> Optional[Union[str, int, datetime]]:
         _, request = item
-        match requests_sorter:  # noqa: E999 (ruff does not recognise pattern matching)
-            case "time":
-                return request.start_time
-            case "duration":
-                return request.duration
-            case "name":
-                return str(request.request.path)
-            case "view":
-                return request.django_view
-            case "query_count":
-                return request.sql_collector.num_queries
-            case "duplicate_query_count":
-                return request.sql_collector.total_duplicate_queries
-            case "similar_query_count":
-                return request.sql_collector.total_similar_queries
-            case _:
-                return request.start_time
+        if requests_sorter == "time":
+            return request.start_time
+        elif requests_sorter == "duration":
+            return request.duration
+        elif requests_sorter == "name":
+            return str(request.request.path)
+        elif requests_sorter == "view":
+            return request.django_view
+        elif requests_sorter == "query_count":
+            return request.sql_collector.num_queries
+        elif requests_sorter == "duplicate_query_count":
+            return request.sql_collector.total_duplicate_queries
+        elif requests_sorter == "similar_query_count":
+            return request.sql_collector.total_similar_queries
+        else:
+            return request.start_time
 
     reverse = requests_direction != "ascending"
     return dict(
@@ -108,7 +108,7 @@ def clear_request_list(request: RequestWithCollectors) -> TemplateResponse:
 
 def request_details(
     request: RequestWithCollectors,
-    request_id: str | UUID,
+    request_id: Union[str, UUID],
 ) -> TemplateResponse:
     template = (
         "partials/request_details_partial.html"

@@ -1,3 +1,4 @@
+from typing import Tuple
 from unittest import mock
 
 import pytest
@@ -144,7 +145,7 @@ async def test_middleware_requests_tracker_clear_async(
 def test_is_ignored_request(
     request_factory: RequestFactory,
     settings: LazySettings,
-    ignore_patterns: tuple[str],
+    ignore_patterns: Tuple[str],
     expected_result: bool,
 ) -> None:
     # Clear config cache to ensure settings are reloaded
