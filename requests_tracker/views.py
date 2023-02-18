@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional, Union
 from uuid import UUID
 
 from django.conf import settings
@@ -26,7 +27,7 @@ def sort_requests(
 ) -> RequestsType:
     def sort_func(
         item: tuple[UUID, MainRequestCollector]
-    ) -> str | int | datetime | None:
+    ) -> Optional[Union[str, int, datetime]]:
         _, request = item
         if requests_sorter == "time":
             return request.start_time
@@ -107,7 +108,7 @@ def clear_request_list(request: RequestWithCollectors) -> TemplateResponse:
 
 def request_details(
     request: RequestWithCollectors,
-    request_id: str | UUID,
+    request_id: Union[str, UUID],
 ) -> TemplateResponse:
     template = (
         "partials/request_details_partial.html"

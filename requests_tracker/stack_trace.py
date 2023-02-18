@@ -1,7 +1,7 @@
 import inspect
 import linecache
 from types import FrameType
-from typing import Any, Generator
+from typing import Any, Generator, Optional
 
 from asgiref.local import Local
 
@@ -10,7 +10,7 @@ from requests_tracker import settings
 _local_data = Local()
 
 # each tuple is: filename, line_no, func_name, source_line, frame_locals
-StackTrace = list[tuple[str, int, str, str, dict[str, Any] | None]]
+StackTrace = list[tuple[str, int, str, str, Optional[dict[str, Any]]]]
 
 
 def _stack_frames(*, skip: int = 0) -> Generator[FrameType, None, None]:
@@ -24,7 +24,7 @@ def _stack_frames(*, skip: int = 0) -> Generator[FrameType, None, None]:
         frame = frame.f_back
 
 
-def _is_excluded_frame(frame: FrameType, excluded_modules: list[str] | None) -> bool:
+def _is_excluded_frame(frame: FrameType, excluded_modules: Optional[list[str]]) -> bool:
     if not excluded_modules:
         return False
     frame_module = frame.f_globals.get("__name__")
@@ -93,7 +93,7 @@ class _StackTraceRecorder:
     def get_stack_trace(
         self,
         *,
-        excluded_modules: list[str] | None = None,
+        excluded_modules: Optional[list[str]] = None,
         include_locals: bool = False,
         skip: int = 0,
     ) -> StackTrace:

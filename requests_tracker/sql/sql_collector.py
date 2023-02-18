@@ -1,6 +1,7 @@
 import re
 import uuid
 from collections import defaultdict
+from typing import Optional
 
 from requests_tracker.base_collector import Collector
 from requests_tracker.settings import get_config
@@ -14,7 +15,7 @@ class SQLCollector(Collector):
     unfiltered_queries: list[SQLQueryInfo]
     databases: dict[str, PerDatabaseInfo]
     sql_time: float
-    transaction_ids: dict[str, str | None]
+    transaction_ids: dict[str, Optional[str]]
 
     def __init__(self) -> None:
         self.databases = {}

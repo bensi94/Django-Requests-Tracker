@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 import pytest
 from django.template import Context, Template
@@ -7,7 +7,7 @@ from mypy_extensions import DefaultArg
 TemplateRenderer = Callable[
     [
         str,
-        DefaultArg(dict | None, "context"),  # noqa F821
+        DefaultArg(Optional[dict], "context"),  # noqa F821
         DefaultArg(bool, "strip"),  # noqa F821
     ],
     str,
@@ -18,7 +18,7 @@ TemplateRenderer = Callable[
 def template_renderer() -> TemplateRenderer:
     def inner_renderer(
         template_str: str,
-        context: dict[str, Any] | None = None,
+        context: Optional[dict[str, Any]] = None,
         strip: bool = False,
     ) -> str:
         result = Template(template_str).render(Context(context))

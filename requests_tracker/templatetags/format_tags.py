@@ -1,7 +1,7 @@
 import os
 import re
 from pprint import pformat
-from typing import Any
+from typing import Any, Optional
 
 from django import template
 from django.utils.safestring import mark_safe
@@ -20,7 +20,7 @@ def split_and_last(value: str, splitter: str = ".") -> str:
 
 
 @register.filter
-def dict_key_index(input_dict: dict[str, Any], key: str) -> int | None:
+def dict_key_index(input_dict: dict[str, Any], key: str) -> Optional[int]:
     """
     Takes in a string key and returns the list index of the key.
     Returns None if key is not found.
