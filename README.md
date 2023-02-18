@@ -14,6 +14,13 @@ A convenient Django development tool based on the great [`Django Debug Toolbar`]
     2. [Configure project settings](#configure-project-settings)
     3. [Configure URLs](#configure-urls)
     4. [Optional: Configure static content for WSGI and ASGI servers, e.g. Uvicorn for async Django](#configure-static-content)
+4. [Configuration](#configuration)
+   1. [IGNORE_SQL_PATTERNS](#ignore_sql_patterns)
+   2. [IGNORE_PATHS_PATTERNS](#ignore_paths_patterns)
+   3. [ENABLE_STACKTRACES](#enable_stacktraces)
+   4. [HIDE_IN_STACKTRACES](#hide_in_stacktraces)
+   5. [SQL_WARNING_THRESHOLD](#sql_warning_threshold)
+   6. [TRACK_SQL](#track_sql)
 
 ## Features
 
@@ -147,3 +154,97 @@ urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 ```console
 python manage.py collectstatic
 ```
+
+## Configuration
+
+Django Requests Tracker provides a few very simple settings. The settings are applied by setting `REQUESTS_TRACKER_CONFIG` setting in your `settings.py` file. `REQUESTS_TRACKER_CONFIG` takes a dictonary. Example:
+
+```python
+# settings.py
+
+REQUESTS_TRACKER_CONFIG = {
+    "IGNORE_PATHS_PATTERNS": (".*/api/keep-alive.*",),
+    "ENABLE_STACKTRACES": False",
+}
+```
+
+### `IGNORE_SQL_PATTERNS`
+
+Takes a tuple of strings. Each string is a regular expression pattern.
+If a SQL query matches any of the patterns it will be ignored and not
+shown in the requests list or request details.
+
+Default: `()`
+
+Example:
+```python
+REQUESTS_TRACKER_CONFIG = {
+    "IGNORE_SQL_PATTERNS": (
+        r"^SELECT .* FROM django_migrations WHERE app = 'requests_tracker'",
+        r"^SELECT .* FROM django_migrations WHERE app = 'auth'",
+    ),
+}
+```
+
+### `IGNORE_PATHS_PATTERNS`
+
+Takes a tuple of strings. Each string is a regular expression pattern.
+If a request path matches any of the patterns it will be ignored and not tracked.
+
+Default: `()`
+
+Example:
+```python
+REQUESTS_TRACKER_CONFIG = {
+    "IGNORE_PATHS_PATTERNS": (
+        r".*/api/keep-alive.*",
+    ),
+}
+```
+
+### `SQL_WARNING_THRESHOLD`
+
+Represents the threshold in milliseconds after which a SQL query is considered slow and
+will be marked with a warning label in the SQL list.
+
+Default: `500` (500 milliseconds)
+
+Example:
+```python
+REQUESTS_TRACKER_CONFIG = {
+    "SQL_WARNING_THRESHOLD": 50,
+}
+```
+
+### `ENABLE_STACKTRACES`
+
+If set to `False` stacktraces will not be shown in the request details view.
+
+Default: `True`
+
+### `HIDE_IN_STACKTRACES`
+
+Takes a tuple of strings. Each string represents a module name. If a module name is found
+in a stacktrace that part of the stacktrace will be hidden.
+
+Default:
+```python
+(
+     "socketserver",
+     "threading",
+     "wsgiref",
+     "requests_tracker",
+     "django.db",
+     "django.core.handlers",
+     "django.core.servers",
+     "django.utils.decorators",
+     "django.utils.deprecation",
+     "django.utils.functional",
+)
+```
+
+### `TRACK_SQL`
+
+If set to `False` SQL queries will not be tracked.
+
+Default: `True`
