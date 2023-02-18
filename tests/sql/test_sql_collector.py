@@ -3,7 +3,9 @@ from typing import Generator
 import pytest
 from django.contrib.auth.models import User
 from django.db import connections
+from pytest_django.fixtures import SettingsWrapper  # type: ignore
 
+from requests_tracker.settings import get_config
 from requests_tracker.sql.sql_collector import SQLCollector
 from requests_tracker.sql.sql_hook import install_sql_hook
 from requests_tracker.sql.sql_tracker import SQLTracker
@@ -120,3 +122,35 @@ def test_generate_statistics__similar_queries_not_duplicates(
     assert query_1.params != query_2.params
     assert query_1.duplicate_count == query_2.duplicate_count == 0
     assert query_1.similar_count == query_2.similar_count == 2
+
+
+@pytest.mark.parametrize(
+    "ignore_patterns, expected_number_of_queries",
+    [
+        ((), 2),
+        ((r".*username.*test",), 1),
+        ((r".*username.*another_username.*",), 1),
+        ((r".*username.*",), 0),
+        (
+            (
+                r".*username.*another_username.*",
+                r".*username.*test.*",
+            ),
+            0,
+        ),
+    ],
+)
+@pytest.mark.django_db
+def test_filtered_queries(
+    sql_collector: SQLCollector,
+    settings: SettingsWrapper,
+    ignore_patterns: list[str],
+    expected_number_of_queries: int,
+) -> None:
+    # Clear config cache to ensure settings are reloaded
+    get_config.cache_clear()
+    settings.REQUESTS_TRACKER_CONFIG["IGNORE_SQL_PATTERNS"] = ignore_patterns
+    User.objects.filter(username="test").exists()
+    User.objects.filter(username="another_username").exists()
+
+    assert sql_collector.num_queries == expected_number_of_queries

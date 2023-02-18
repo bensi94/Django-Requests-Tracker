@@ -51,7 +51,7 @@
                 </span>
             </div>
             {% with database_count=request.sql_collector.databases|length %}
-                {% with query_count=request.sql_collector.queries|length %}
+                {% with query_count=request.sql_collector.num_queries %}
                     {% with similar_count=request.sql_collector.total_similar_queries %}
                         {% with duplicate_count=request.sql_collector.total_duplicate_queries %}
                             {% if similar_count %}

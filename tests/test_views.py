@@ -7,7 +7,7 @@ from django.test import RequestFactory
 
 from requests_tracker.main_request_collector import MainRequestCollector
 from requests_tracker.middleware import RequestWithCollectors
-from requests_tracker.sql.dataclasses import PerDatabaseInfo
+from requests_tracker.sql.dataclasses import PerDatabaseInfo, SQLQueryInfo
 from requests_tracker.sql.sql_collector import SQLCollector
 from requests_tracker.views import (
     clear_request_list,
@@ -154,12 +154,27 @@ def test_sort_requests(
     expected_order: list[UUID],
     request_factory: RequestFactory,
 ) -> None:
+    fake_query = SQLQueryInfo(
+        vendor="",
+        alias="",
+        sql="",
+        duration=10,
+        raw_sql="",
+        params="",
+        raw_params="",
+        stacktrace=[],
+        start_time=0,
+        stop_time=0,
+        is_slow=False,
+        is_select=False,
+    )
+
     main_collector_1 = MainRequestCollector(request_factory.get("/d"))
     main_collector_1.start_time = datetime(2023, 1, 1, 0, 0, 5)
     main_collector_1.end_time = datetime(2023, 1, 1, 0, 0, 6)
     main_collector_1.django_view = "view_d"
     sql_collector_1 = SQLCollector()
-    sql_collector_1.num_queries = 0
+    sql_collector_1.unfiltered_queries = []
     sql_collector_1.databases = {"default": PerDatabaseInfo(0, 0, 0, 0)}
     main_collector_1.sql_collector = sql_collector_1
 
@@ -168,7 +183,7 @@ def test_sort_requests(
     main_collector_2.end_time = datetime(2023, 1, 1, 0, 0, 8)
     main_collector_2.django_view = "view_c"
     sql_collector_2 = SQLCollector()
-    sql_collector_2.num_queries = 4
+    sql_collector_2.unfiltered_queries = [fake_query] * 4
     sql_collector_2.databases = {"default": PerDatabaseInfo(40, 4, 4, 2)}
 
     main_collector_2.sql_collector = sql_collector_2
@@ -178,7 +193,7 @@ def test_sort_requests(
     main_collector_3.end_time = datetime(2023, 1, 1, 0, 0, 4)
     main_collector_3.django_view = "view_a"
     sql_collector_3 = SQLCollector()
-    sql_collector_3.num_queries = 10
+    sql_collector_3.unfiltered_queries = [fake_query] * 10
     sql_collector_3.databases = {"default": PerDatabaseInfo(90, 10, 10, 10)}
     main_collector_3.sql_collector = sql_collector_3
 
@@ -187,7 +202,7 @@ def test_sort_requests(
     main_collector_4.end_time = datetime(2023, 1, 1, 0, 0, 6)
     main_collector_4.django_view = "view_e"
     sql_collector_4 = SQLCollector()
-    sql_collector_4.num_queries = 7
+    sql_collector_4.unfiltered_queries = [fake_query] * 7
     sql_collector_4.databases = {"default": PerDatabaseInfo(90, 7, 6, 2)}
     main_collector_4.sql_collector = sql_collector_4
 
@@ -196,7 +211,7 @@ def test_sort_requests(
     main_collector_5.end_time = datetime(2023, 1, 1, 0, 0, 10)
     main_collector_5.django_view = "view_b"
     sql_collector_5 = SQLCollector()
-    sql_collector_5.num_queries = 20
+    sql_collector_5.unfiltered_queries = [fake_query] * 20
     sql_collector_5.databases = {"default": PerDatabaseInfo(90, 20, 0, 0)}
     main_collector_5.sql_collector = sql_collector_5
 

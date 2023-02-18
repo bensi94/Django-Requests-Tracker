@@ -24,6 +24,8 @@ CONFIG_DEFAULTS = {
     "SQL_WARNING_THRESHOLD": 500,  # milliseconds
     "REQUESTS_TRACKER_CONFIG": True,
     "TRACK_SQL": True,
+    "IGNORE_SQL_PATTERNS": (),
+    "IGNORE_PATHS_PATTERNS": (),
 }
 
 

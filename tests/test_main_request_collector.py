@@ -129,7 +129,7 @@ def test_matches_search_filter(
 ) -> None:
     collector.request.path = request_path
     collector.django_view = django_view
-    collector.sql_collector.queries = [
+    collector.sql_collector.unfiltered_queries = [
         SQLQueryInfo(
             vendor="",
             alias="",

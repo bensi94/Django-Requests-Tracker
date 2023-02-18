@@ -1,7 +1,9 @@
+import re
 import uuid
 from collections import defaultdict
 
 from requests_tracker.base_collector import Collector
+from requests_tracker.settings import get_config
 from requests_tracker.sql.dataclasses import PerDatabaseInfo, SQLQueryInfo
 
 SimilarQueryGroupsType = dict[tuple[str, str], list[SQLQueryInfo]]
@@ -9,33 +11,39 @@ DuplicateQueryGroupsType = dict[tuple[str, tuple[str, str]], list[SQLQueryInfo]]
 
 
 class SQLCollector(Collector):
-    queries: list[SQLQueryInfo]
+    unfiltered_queries: list[SQLQueryInfo]
     databases: dict[str, PerDatabaseInfo]
     sql_time: float
-    num_queries: int
     transaction_ids: dict[str, str | None]
 
     def __init__(self) -> None:
-        self.queries = []
         self.databases = {}
         self.sql_time = 0
-        self.num_queries = 0
+        self.unfiltered_queries = []
         # synthetic transaction IDs, keyed by DB alias
         self.transaction_ids = {}
 
+    @property
+    def queries(self) -> list[SQLQueryInfo]:
+        config = get_config()
+        if ignore_patterns := config.get("IGNORE_SQL_PATTERNS"):
+            return [
+                query
+                for query in self.unfiltered_queries
+                if not any(
+                    bool(re.match(pattern, query.raw_sql))
+                    for pattern in ignore_patterns
+                )
+            ]
+
+        return self.unfiltered_queries
+
+    @property
+    def num_queries(self) -> int:
+        return len(self.queries)
+
     def record(self, sql_query_info: SQLQueryInfo) -> None:
-        self.queries.append(sql_query_info)
-        alias = sql_query_info.alias
-        if alias not in self.databases:
-            self.databases[alias] = PerDatabaseInfo(
-                time_spent=sql_query_info.duration,
-                num_queries=1,
-            )
-        else:
-            self.databases[alias].time_spent += sql_query_info.duration
-            self.databases[alias].num_queries += 1
-        self.sql_time += sql_query_info.duration
-        self.num_queries += 1
+        self.unfiltered_queries.append(sql_query_info)
 
     def new_transaction_id(self, alias: str) -> str:
         """
@@ -62,7 +70,21 @@ class SQLCollector(Collector):
         similar_query_groups: SimilarQueryGroupsType = defaultdict(list)
         duplicate_query_groups: DuplicateQueryGroupsType = defaultdict(list)
 
+        self.databases = {}
+        self.sql_time = 0
+
         for query in self.queries:
+            alias = query.alias
+            if alias not in self.databases:
+                self.databases[alias] = PerDatabaseInfo(
+                    time_spent=query.duration,
+                    num_queries=1,
+                )
+            else:
+                self.databases[alias].time_spent += query.duration
+                self.databases[alias].num_queries += 1
+            self.sql_time += query.duration
+
             similar_query_groups[(query.alias, query.sql)].append(query)
             duplicate_query_groups[
                 (
@@ -92,7 +114,7 @@ class SQLCollector(Collector):
                     query.duplicate_count = count
                 duplicate_counts[alias] += count
 
-        for alias, _ in self.databases.items():
+        for alias in self.databases:
             self.databases[alias].similar_count = similar_counts[alias]
             self.databases[alias].duplicate_count = duplicate_counts[alias]
 
