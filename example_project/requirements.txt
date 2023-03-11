@@ -1,4 +1,4 @@
-django-requests-tracker
+requests-tracker
 
 django
 djangorestframework
