@@ -31,7 +31,7 @@ def install_sql_hook() -> None:
     def execute(self: CursorWrapper, sql: str, params: ExecuteParameters = None) -> Any:
         sql_tracker = SQLTracker.current
         set_database_wrapper_if_missing(sql_tracker, self)
-        sql_tracker.record(
+        return sql_tracker.record(
             method=real_execute,
             cursor_self=self,
             sql=sql,
@@ -45,7 +45,7 @@ def install_sql_hook() -> None:
     ) -> Any:
         sql_tracker = SQLTracker.current
         set_database_wrapper_if_missing(sql_tracker, self)
-        sql_tracker.record(
+        return sql_tracker.record(
             method=real_executemany,
             cursor_self=self,
             sql=sql,
@@ -60,7 +60,7 @@ def install_sql_hook() -> None:
     ) -> Any:
         sql_tracker = SQLTracker.current
         set_database_wrapper_if_missing(sql_tracker, self)
-        sql_tracker.record(
+        return sql_tracker.record(
             method=real_call_proc,
             cursor_self=self,
             sql=procname,
@@ -68,9 +68,11 @@ def install_sql_hook() -> None:
         )
 
     def connect(self: BaseDatabaseWrapper) -> Any:
-        real_connect(self)
+        ret = real_connect(self)
         sql_tracker = SQLTracker.current
         sql_tracker.set_database_wrapper(self)
+
+        return ret
 
     CursorWrapper.execute = execute  # type: ignore
     CursorWrapper.executemany = executemany  # type: ignore
