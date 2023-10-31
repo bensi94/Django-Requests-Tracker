@@ -1,0 +1,8 @@
+venv
+run_async.py
+__pycache__
+.gitignore
+.idea
+.env
+.ruff_cache
+db.sqlite3

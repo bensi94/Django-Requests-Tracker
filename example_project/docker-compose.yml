@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    expose:
+      - '5432'
+    ports:
+        - '7432:5432'
+    environment:
+        POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: /usr/bin/pg_isready
+      interval: 5s
+      timeout: 10s
+      retries: 120
+  migrations_and_demo_data:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      DATABASE_TYPE: postgres
+    entrypoint:  bash -c "python manage.py migrate && python manage.py create_demo_data"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  example_project:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      DATABASE_TYPE: postgres
+    ports:
+      - '8000:8000'
+    depends_on:
+      - migrations_and_demo_data
+      - db

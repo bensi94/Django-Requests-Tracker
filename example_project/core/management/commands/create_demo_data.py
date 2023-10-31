@@ -8,6 +8,10 @@ class Command(BaseCommand):
     help = "Create demo data for the example project app"
 
     def handle(self, *args, **options):
+        if User.objects.filter(username="demo_user").exists():
+            print("Demo data already created. Skipping...")
+            return
+
         user = User.objects.create_user(
             username="demo_user",
             email="test@example.com",
