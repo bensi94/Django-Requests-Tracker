@@ -11,7 +11,6 @@ class Command(BaseCommand):
         parser.add_argument("--url", type=str, default="http://localhost:8000")
 
     async def async_handle(self, base_url: str) -> None:
-
         responses: dict[str, dict] = {}
 
         async def send_get_request(client: httpx.AsyncClient, url: str) -> None:

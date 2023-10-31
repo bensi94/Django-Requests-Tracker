@@ -12,7 +12,6 @@ class FakeCollector(Collector):
 
 
 def test_generate_statistics() -> None:
-
     collector = FakeCollector()
 
     with pytest.raises(NotImplementedError):
@@ -20,7 +19,6 @@ def test_generate_statistics() -> None:
 
 
 def test_matches_search_filter() -> None:
-
     collector = FakeCollector()
 
     with pytest.raises(NotImplementedError):

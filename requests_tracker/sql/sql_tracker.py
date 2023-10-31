@@ -37,7 +37,6 @@ except ImportError:
     STATUS_IN_TRANSACTION = None  # type: ignore
 
 if TYPE_CHECKING:
-
     DecodeReturn = Union[
         List[Union["DecodeReturn", str]], Dict[str, Union["DecodeReturn", str]], str
     ]
@@ -127,7 +126,6 @@ class SQLTracker(metaclass=SQLTrackerMeta):
         many: bool,
         vendor: str,
     ) -> str:
-
         # This is a hacky way to get the parameters correct for sqlite in executemany
         if (
             vendor == "sqlite"
@@ -222,7 +220,6 @@ class SQLTracker(metaclass=SQLTrackerMeta):
         params: ExecuteParametersOrSequence,
         many: bool = False,
     ) -> Any:  # sourcery skip: remove-unnecessary-cast
-
         # If we're not tracking SQL, just call the original method
         if self._sql_collector is None:
             return method(cursor_self, sql, params)
