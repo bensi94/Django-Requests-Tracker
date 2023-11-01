@@ -135,6 +135,14 @@ if DEBUG:
     INTERNAL_IPS = ["127.0.0.1"]
 ```
 
+⚠️ If using [Docker](https://www.docker.com/) the following will set your INTERNAL_IPS correctly in Debug mode:
+```python
+if DEBUG:
+    import socket  # only if you haven't already imported this
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
+```
+
 🚨 ️&nbsp; It's recommended to only configure these settings in DEBUG mode.
 Even though Django Requests Tracker will only track requests in DEBUG mode
 it's still a good practice to only have it installed in DEBUG mode.

@@ -8,3 +8,6 @@ pyyaml
 requests
 uvicorn
 httpx
+
+# Only needed if running with postgres database, for example in docker setup.
+psycopg2

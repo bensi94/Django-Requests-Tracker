@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Union
 
 if TYPE_CHECKING:
-
     from requests_tracker.sql.sql_tracker import ExecuteParametersOrSequence
     from requests_tracker.stack_trace import StackTrace
 

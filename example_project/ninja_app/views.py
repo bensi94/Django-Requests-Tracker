@@ -154,7 +154,7 @@ def n_plus_1_query(request: HttpRequest) -> None:
 
 @error_examples_router.get("/divide-by-zero", response=None)
 def divide_by_zero(request: HttpRequest) -> None:
-    10 / 0
+    10 / 0  # noqa: B018
 
 
 @error_examples_router.get("/not-authenticated", auth=lambda _: False)
