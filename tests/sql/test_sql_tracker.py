@@ -108,6 +108,8 @@ def test_record__mock_postgres_database_wrapper_connection_ready() -> None:
     postgres_wrapper_mock.alias = alias
     postgres_wrapper_mock.vendor = vendor
     postgres_wrapper_mock.connection = connection
+    postgres_wrapper_mock.Database = Mock()
+    postgres_wrapper_mock.Database.__version__ = "2.9.9"
     connection.status = STATUS_READY
     connection.isolation_level = ISOLATION_LEVEL_AUTOCOMMIT
     connection.get_transaction_status.return_value = TRANSACTION_STATUS_ACTIVE
@@ -160,6 +162,8 @@ def test_record__mock_postgres_database_wrapper_connection_begin() -> None:
     postgres_wrapper_mock.alias = alias
     postgres_wrapper_mock.vendor = vendor
     postgres_wrapper_mock.connection = connection
+    postgres_wrapper_mock.Database = Mock()
+    postgres_wrapper_mock.Database.__version__ = "2.9.9"
     connection.status = STATUS_BEGIN
     connection.isolation_level = ISOLATION_LEVEL_AUTOCOMMIT
     connection.get_transaction_status.return_value = TRANSACTION_STATUS_ACTIVE
@@ -204,6 +208,8 @@ def test_record_mock_postgres_database_wrapper_connection_ready_and_begin() -> N
     postgres_wrapper_mock.alias = alias
     postgres_wrapper_mock.vendor = vendor
     postgres_wrapper_mock.connection = connection
+    postgres_wrapper_mock.Database = Mock()
+    postgres_wrapper_mock.Database.__version__ = "2.9.9"
     type(connection).status = PropertyMock(side_effect=[STATUS_READY, STATUS_BEGIN])
     connection.InternalError = InternalError
     type(connection).isolation_level = PropertyMock(

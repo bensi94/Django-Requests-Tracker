@@ -179,8 +179,11 @@ class SQLTracker(metaclass=SQLTrackerMeta):
         be in a state where checking isolation_level raises an exception.
         """
         try:
-            return conn.isolation_level
-        except conn.InternalError:
+            try:
+                return conn.isolation_level
+            except conn.InternalError:
+                return "unknown"
+        except AttributeError:
             return "unknown"
 
     def _get_postgres_transaction_id(
@@ -232,8 +235,22 @@ class SQLTracker(metaclass=SQLTrackerMeta):
 
         if vendor == "postgresql":
             # The underlying DB connection (as opposed to Django's wrapper)
+            db_version_string_match = re.match(
+                r"(\d+\.\d+\.\d+)", self.database_wrapper.Database.__version__  # type: ignore
+            )
+            db_version = (
+                tuple(map(int, db_version_string_match.group(1).split(".")))
+                if db_version_string_match
+                else (0, 0, 0)
+            )
+
             conn = self.database_wrapper.connection
-            initial_conn_status = conn.status
+            pgconn = (
+                conn
+                if db_version < (3, 0, 0)
+                else self.database_wrapper.connection.pgconn
+            )
+            initial_conn_status = pgconn.status
 
         start_time = time()
         try:
@@ -265,12 +282,15 @@ class SQLTracker(metaclass=SQLTrackerMeta):
 
             if vendor == "postgresql":
                 sql_query_info.trans_id = self._get_postgres_transaction_id(
-                    conn=conn,
+                    conn=pgconn,
                     initial_conn_status=initial_conn_status,
                     alias=alias,
                 )
-                sql_query_info.trans_status = conn.get_transaction_status()
-                sql_query_info.iso_level = self._get_postgres_isolation_level(conn)
+                try:
+                    sql_query_info.trans_status = pgconn.get_transaction_status()
+                except AttributeError:
+                    sql_query_info.trans_status = pgconn.transaction_status
+                sql_query_info.iso_level = self._get_postgres_isolation_level(pgconn)
 
             self._sql_collector.record(sql_query_info)
 
