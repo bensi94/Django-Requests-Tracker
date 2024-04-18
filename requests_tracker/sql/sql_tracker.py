@@ -236,7 +236,8 @@ class SQLTracker(metaclass=SQLTrackerMeta):
         if vendor == "postgresql":
             # The underlying DB connection (as opposed to Django's wrapper)
             db_version_string_match = re.match(
-                r"(\d+\.\d+\.\d+)", self.database_wrapper.Database.__version__  # type: ignore
+                r"(\d+\.\d+\.\d+)",
+                self.database_wrapper.Database.__version__,  # type: ignore
             )
             db_version = (
                 tuple(map(int, db_version_string_match.group(1).split(".")))
