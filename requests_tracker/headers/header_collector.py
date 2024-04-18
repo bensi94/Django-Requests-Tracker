@@ -65,8 +65,7 @@ class HeaderCollector(Collector):
             False,
         )
 
-    def generate_statistics(self) -> None:
-        ...
+    def generate_statistics(self) -> None: ...
 
 
 def is_http_header(key: str) -> bool:

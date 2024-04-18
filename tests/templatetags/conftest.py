@@ -7,7 +7,7 @@ from mypy_extensions import DefaultArg
 TemplateRenderer = Callable[
     [
         str,
-        DefaultArg(Optional[dict], "context"),  # noqa F821
+        DefaultArg(Optional[Dict[str, Any]], "context"),  # noqa F821
         DefaultArg(bool, "strip"),  # noqa F821
     ],
     str,

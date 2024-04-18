@@ -26,7 +26,7 @@ def sort_requests(
     requests_direction: str,
 ) -> RequestsType:
     def sort_func(
-        item: Tuple[UUID, MainRequestCollector]
+        item: Tuple[UUID, MainRequestCollector],
     ) -> Optional[Union[str, int, datetime]]:
         _, request = item
         if requests_sorter == "time":
